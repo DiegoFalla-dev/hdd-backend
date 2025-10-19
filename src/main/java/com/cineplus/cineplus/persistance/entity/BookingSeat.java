@@ -4,13 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "cinemas")
+@Table(name = "booking_seats")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Cinema {
+public class BookingSeat {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String externalId;
-    private String name;
-    private String city;
-    private String address;
+    @ManyToOne private Booking booking;
+    @ManyToOne private Seat seat;
+    private Integer priceCents;
 }
