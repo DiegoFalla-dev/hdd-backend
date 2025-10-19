@@ -1,4 +1,4 @@
 package com.cineplus.cineplus.persistance.repository;
 
-public class SeatRepository {
+public interface SeatRepository {
 }

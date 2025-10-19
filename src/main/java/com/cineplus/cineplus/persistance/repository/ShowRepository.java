@@ -1,4 +1,4 @@
 package com.cineplus.cineplus.persistance.repository;
 
-public class ShowRepository {
+public interface ShowRepository {
 }
