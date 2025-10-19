@@ -12,7 +12,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public BookingResponse create(@RequestBody BookingRequest req) {
+    public BookingResponse create(@RequestBody BookingRequestDTO req) {
         var booking = bookingService.confirmBooking(req.getUserExternalId(), req.getUserExternalId(), req.getShowId(), req.getSeatIds());
         return new BookingResponse(booking.getId(), booking.getStatus().name(), booking.getTotalCents());
     }

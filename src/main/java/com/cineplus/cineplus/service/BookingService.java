@@ -23,7 +23,7 @@ public class BookingService {
         // check locks exist and belong to holder
         for (Long seatId : seatIds) {
             String key = LOCK_PREFIX + showId + ":" + seatId;
-            String val = redisLockService.redisTemplate().opsForValue().get(key); // note: expose or inject template if necessary
+            String val = redisLockService.getValue(key);
             if (!holderId.equals(val)) throw new IllegalStateException("No lock for seat " + seatId);
         }
 
@@ -41,18 +41,18 @@ public class BookingService {
         Booking booking = Booking.builder()
                 .userExternalId(userExternalId)
                 .createdAt(OffsetDateTime.now())
-                .totalCents(0)
+                .totalCents(total)
                 .status(Booking.BookingStatus.PAID) // or PENDING if payment required
                 .build();
-        Booking saved = bookingRepository.save(booking);
-        // create booking seats
-        List<BookingSeat> bSeats = seats.stream().map(s -> BookingSeat.builder()
-                .booking(saved)
-                .seat(s)
-                .priceCents(0)
-                .build()).collect(Collectors.toList());
-        saved.setBookingSeats(bSeats);
-        saved = bookingRepository.save(saved);
+    Booking saved = bookingRepository.save(booking);
+    // create booking seats
+    List<BookingSeat> bSeats = seats.stream().map(s -> BookingSeat.builder()
+        .booking(saved)
+        .seat(s)
+        .priceCents(0)
+        .build()).collect(Collectors.toList());
+    saved.setBookingSeats(bSeats);
+    bookingRepository.save(saved);
 
         // release locks
         for (Long seatId : seatIds) redisLockService.release(LOCK_PREFIX + showId + ":" + seatId, holderId);

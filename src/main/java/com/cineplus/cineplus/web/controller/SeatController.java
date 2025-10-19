@@ -2,7 +2,6 @@ package com.cineplus.cineplus.web.controller;
 
 import com.cineplus.cineplus.service.SeatService;
 import com.cineplus.cineplus.web.dto.*;
-import com.cineplus.cineplus.persistance.entity.Seat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

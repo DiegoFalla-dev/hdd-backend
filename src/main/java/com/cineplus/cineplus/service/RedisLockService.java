@@ -22,4 +22,9 @@ public class RedisLockService {
             redisTemplate.delete(key);
         }
     }
+
+    // helper to read current value of a lock key
+    public String getValue(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
 }

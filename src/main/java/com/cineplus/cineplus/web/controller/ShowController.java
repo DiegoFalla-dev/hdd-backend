@@ -1,7 +1,5 @@
 package com.cineplus.cineplus.web.controller;
 
-import com.cineplus.cineplus.persistance.entity.Show;
-import com.cineplus.cineplus.service.SeatService;
 import com.cineplus.cineplus.persistance.repository.ShowRepository;
 import com.cineplus.cineplus.web.dto.ShowDTO;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ShowController {
     private final ShowRepository showRepository;
-    private final SeatService seatService;
 
     @GetMapping
     public List<ShowDTO> list(@RequestParam(required = false) String cinemaExternalId) {
