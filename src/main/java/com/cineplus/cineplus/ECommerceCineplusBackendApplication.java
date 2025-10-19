@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CineplusApplication {
+public class ECommerceCineplusBackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CineplusApplication.class, args);
+		SpringApplication.run(ECommerceCineplusBackendApplication.class, args);
 	}
 
 }
