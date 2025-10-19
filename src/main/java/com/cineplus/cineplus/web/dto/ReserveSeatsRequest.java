@@ -4,8 +4,9 @@ import lombok.*;
 import java.util.List;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-public class BookingRequestDTO {
+public class ReserveSeatsRequest {
     private Long showId;
     private List<Long> seatIds;
-    private String userExternalId;
+    private String holderId; // local user/session id
+    private Integer holdSeconds = 300; // default 5min
 }
