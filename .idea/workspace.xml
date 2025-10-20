@@ -4,18 +4,76 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f55dbe48-3f1a-4fe9-9d22-027c1d9971b0" name="Changes" comment="ENTITY">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/RedisLockService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/SeatService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/SeatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/CinemaDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/ConcessionProductDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/MovieDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/ShowtimeDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Cinema.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/ConcessionProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Movie.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Seat.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Showtime.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Theater.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/CinemaRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/ConcessionProductRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/MovieRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/SeatRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/ShowtimeRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/TheaterRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/CinemaService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/ConcessionProductService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/MovieService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/ShowtimeService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/ConcessionProductMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/MovieMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/ShowtimeMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/CinemaServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/ConcessionProductServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/MovieServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/ShowtimeServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/util/DataInitializer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/config/CorsConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ConcessionProductController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/BookingRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/BookingRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/SeatRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/SeatRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/ShowRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/ShowRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/BookingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/BookingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/BookingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/BookingController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ShowController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ShowController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/config/SwaggerConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/config/WebConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/entity/Booking.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/entity/BookingSeat.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/entity/Cinema.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/entity/Hall.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/entity/Movie.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/entity/Seat.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/entity/Show.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/mapper/MovieMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/CinemaMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/BookingRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/MovieRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/SeatRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistance/repository/ShowRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/security/JWTAuthenticationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/security/JWTTokenProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/security/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/BookingService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/MovieService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/MovieServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/RedisLockService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/SeatService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/service/ShowService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/BookingController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/CinemaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/CinemaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/MovieController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/MovieController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/PaymentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ShowtimeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/SeatController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ShowController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/dto/BookingRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/dto/BookingResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/dto/CinemaDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/dto/MovieDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/dto/ReserveSeatsRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/dto/SeatDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/dto/ShowDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,7 +83,6 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -38,18 +95,18 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;DiegoFalla-dev&quot;
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "DiegoFalla-dev"
   }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/DiegoFalla-dev/hdd-backend.git&quot;,
-    &quot;accountId&quot;: &quot;4ab8ea87-1f23-4d9a-ad82-0908a9572b67&quot;
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/DiegoFalla-dev/hdd-backend.git",
+    "accountId": "4ab8ea87-1f23-4d9a-ad82-0908a9572b67"
   }
-}</component>
+}]]></component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -57,11 +114,13 @@
       </MavenGeneralSettings>
     </option>
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 8
-}</component>
-  <component name="ProjectId" id="34ILFQjB2ZiRHaenSoHnZ3zYBLF" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="34JberIo4kQ0S2CaRAUtgKXUgOw" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
@@ -71,55 +130,36 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Application.ECommerceCineplusBackendApplication.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feature-respository",
-    "ignore.virus.scanning.warn.message": "true",
+    "git-widget-placeholder": "feature-spring5",
     "kotlin-language-version-configured": "true"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="hdd-backend" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="hdd-backend" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="f55dbe48-3f1a-4fe9-9d22-027c1d9971b0" name="Changes" comment="" />
-      <created>1760896035371</created>
+      <changelist id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="" />
+      <created>1760934719139</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1760896035371</updated>
+      <updated>1760934719139</updated>
     </task>
-    <task id="LOCAL-00001" summary="ESTRUCTURE">
-      <option name="closed" value="true" />
-      <created>1760899704243</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1760899704243</updated>
-    </task>
-    <task id="LOCAL-00002" summary="ESTRUCTURE">
-      <option name="closed" value="true" />
-      <created>1760899952448</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1760899952448</updated>
-    </task>
-    <task id="LOCAL-00003" summary="ENTITY">
-      <option name="closed" value="true" />
-      <created>1760900138156</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1760900138156</updated>
-    </task>
-    <option name="localTasksCounter" value="4" />
     <servers />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Estructure" />
-    <MESSAGE value="ESTRUCTURE" />
-    <MESSAGE value="ENTITY" />
-    <option name="LAST_COMMIT_MESSAGE" value="ENTITY" />
   </component>
 </project>
