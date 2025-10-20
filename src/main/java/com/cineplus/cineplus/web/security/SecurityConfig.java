@@ -1,7 +1,9 @@
 package com.cineplus.cineplus.web.security;
 
-import com.cineplus.cineplus.web.security.jwt.JwtAuthenticationEntryPoint;
-import com.cineplus.cineplus.web.security.jwt.JwtAuthenticationFilter;
+import com.cineplus.cineplus.persistence.service.impl.UserDetailsServiceImpl;
+import com.cineplus.cineplus.web.security.jwt.AuthEntryPointJwt;
+import com.cineplus.cineplus.web.security.jwt.AuthTokenFilter;
+import com.cineplus.cineplus.web.security.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,17 +22,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Habilita seguridad a nivel de método (ej. @PreAuthorize)
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true) // Habilita seguridad a nivel de método
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final JwtAuthenticationEntryPoint unauthorizedHandler;
+    private final AuthEntryPointJwt unauthorizedHandler;
+    private final JwtUtils jwtUtils; // Inyecta JwtUtils para construir el filtro
 
+    // AuthTokenFilter debe ser un bean con JwtUtils y UserDetailsServiceImpl inyectados
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter(jwtUtils, userDetailsService);
     }
 
     @Bean
@@ -47,22 +50,31 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Deshabilita CSRF para APIs REST
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler)) // Manejo de excepciones de autenticación
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No usar sesiones
+                .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // Permitir acceso a los endpoints de autenticación sin seguridad
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // Permitir acceso a endpoints públicos (ej. obtener películas, cines, horarios sin autenticar)
-                        .requestMatchers("/api/movies/**", "/api/cinemas/**", "/api/showtimes/**", "/api/concessions/**").permitAll()
-                        // Cualquier otra solicitud requiere autenticación
+                        .requestMatchers("/api/auth/**").permitAll() // Permitir registro y login sin autenticación
+                        .requestMatchers("/api/test/**").permitAll() // Para endpoints de prueba si los hubiera
+                        .requestMatchers("/api/movies/**").permitAll() // Permitir a todos ver películas
+                        .requestMatchers("/api/cinemas/**").permitAll() // Permitir a todos ver cines
+                        .requestMatchers("/api/theaters","/api/theaters/**").permitAll() // Permitir a todos ver salas
+                        .requestMatchers("/api/showtimes", "/api/showtimes/**").permitAll() // Permitir a todos ver horarios y asientos (GET)
+                        .requestMatchers("/api/concessions","/api/concessions/**").permitAll() // Permitir a todos ver productos de dulcería
+                        // .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
                         .anyRequest().authenticated()
                 );
 
         http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

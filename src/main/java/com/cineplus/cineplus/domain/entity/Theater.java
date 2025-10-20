@@ -6,8 +6,10 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.Set; // Importa Set si Cinema tiene una lista de Theaters
+
 @Entity
-@Table(name = "theaters")
+@Table(name = "theaters") // <-- Asegúrate de que esta anotación esté presente y sea correcta
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +20,7 @@ public class Theater {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cinema_id", nullable = false)
+    @JoinColumn(name = "cinema_id", nullable = false) // <-- Clave foránea a la tabla 'cinemas'
     private Cinema cinema;
 
     @Column(nullable = false, length = 100)
@@ -31,6 +33,9 @@ public class Theater {
     private int rows;
     private int cols;
     private int totalSeats;
+
+    @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Showtime> showtimes; // Relación con Showtime (opcional, pero buena práctica si quieres acceder a los showtimes desde la sala)
 
     public enum SeatMatrixType {
         SMALL, MEDIUM, LARGE, XLARGE

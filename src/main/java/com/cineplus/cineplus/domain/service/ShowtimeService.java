@@ -17,4 +17,6 @@ public interface ShowtimeService {
     List<String> reserveSeatsTemporarily(Long showtimeId, Set<String> seatIdentifiers); // Retorna los asientos que no se pudieron reservar
     void releaseTemporaryReservedSeats(Long showtimeId, Set<String> seatIdentifiers); // Libera asientos temporales
     void confirmSeatsAsOccupied(Long showtimeId, Set<String> seatIdentifiers); // Confirma asientos
+
+    ShowtimeDto saveShowtime (ShowtimeDto showtimeDto);
 }

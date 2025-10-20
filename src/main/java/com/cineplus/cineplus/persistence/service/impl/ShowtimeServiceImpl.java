@@ -177,4 +177,31 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         }
         // Nota: availableSeats ya se actualizó en reserveSeatsTemporarily, aquí solo cambiamos el estado final.
     }
+
+    @Override
+    @Transactional
+    public ShowtimeDto saveShowtime(ShowtimeDto showtimeDto) {
+        Movie movie = movieRepository.findById(showtimeDto.getMovieId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found with id: " + showtimeDto.getMovieId()));
+        Theater theater = theaterRepository.findById(showtimeDto.getTheaterId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Theater not found with id: " + showtimeDto.getTheaterId()));
+
+        Showtime showtime = showtimeMapper.toEntity(showtimeDto);
+        showtime.setMovie(movie);
+        showtime.setTheater(theater);
+        // Asegúrate de que availableSeats se inicialice correctamente.
+        // Si el teatro ya tiene un totalSeats calculado, úsalo.
+        if (theater.getTotalSeats() > 0) {
+            showtime.setAvailableSeats(theater.getTotalSeats());
+        } else {
+            // Si totalSeats no está calculado aún en el teatro, puedes calcularlo aquí
+            // O asegurarte de que TheaterService lo calcule al guardar el teatro.
+            // Asumiremos que theater.getTotalSeats() ya está correcto.
+            showtime.setAvailableSeats(theater.getRows() * theater.getCols()); // Fallback
+        }
+
+
+        Showtime savedShowtime = showtimeRepository.save(showtime);
+        return showtimeMapper.toDto(savedShowtime);
+    }
 }

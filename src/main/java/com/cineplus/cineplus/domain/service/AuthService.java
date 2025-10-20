@@ -6,5 +6,5 @@ import com.cineplus.cineplus.domain.dto.RegisterRequestDto;
 
 public interface AuthService {
     JwtResponseDto authenticateUser(LoginRequestDto loginRequest);
-    JwtResponseDto registerUser(RegisterRequestDto registerRequest);
+    void registerUser(RegisterRequestDto registerRequest);
 }

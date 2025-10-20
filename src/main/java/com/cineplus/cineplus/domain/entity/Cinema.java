@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "cinemas")
 @Getter
@@ -20,5 +22,6 @@ public class Cinema {
     @Column(nullable = false, length = 255)
     private String name;
 
-    // Aquí podrías añadir más campos como dirección, coordenadas, etc.
+    @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Theater> theaters;
 }

@@ -17,13 +17,13 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 50)
-    @Enumerated(EnumType.STRING) // Almacena el nombre del enum como String en la DB
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, unique = true)
     private RoleName name;
 
     public enum RoleName {
-        ROLE_USER,
         ROLE_ADMIN,
-        ROLE_MANAGER // Puedes añadir más roles según tus necesidades
+        ROLE_MANAGER,
+        ROLE_USER
     }
 }

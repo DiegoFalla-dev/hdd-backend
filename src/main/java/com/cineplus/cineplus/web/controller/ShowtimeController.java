@@ -95,6 +95,14 @@ public class ShowtimeController {
         return ResponseEntity.noContent().build();
     }
 
-    // Otros endpoints CRUD para Showtimes (Crear, Actualizar, Eliminar) podrían ir aquí si fueran necesarios.
-    // Por simplicidad, y dado que el flujo de UI se centra más en consultar, no los incluyo ahora.
+    // POST /api/showtimes
+    @PostMapping
+    public ResponseEntity<ShowtimeDto> createShowtime(@RequestBody ShowtimeDto showtimeDto) {
+
+        ShowtimeDto createdShowtime = showtimeDto;
+
+        createdShowtime = showtimeService.saveShowtime(showtimeDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdShowtime);
+    }
+
 }
