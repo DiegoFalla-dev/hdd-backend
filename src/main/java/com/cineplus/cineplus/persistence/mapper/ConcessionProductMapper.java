@@ -5,6 +5,7 @@ import com.cineplus.cineplus.domain.entity.Cinema;
 import com.cineplus.cineplus.domain.entity.ConcessionProduct;
 import org.mapstruct.*;
 
+import java.util.Collections; // Importa esto
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,10 @@ public interface ConcessionProductMapper {
 
     @Named("cinemasToCinemaIds")
     default Set<Long> cinemasToCinemaIds(Set<Cinema> cinemas) {
+        // Añade esta verificación de nulidad
+        if (cinemas == null) {
+            return Collections.emptySet(); // Devuelve un conjunto vacío en lugar de null
+        }
         return cinemas.stream()
                 .map(Cinema::getId)
                 .collect(Collectors.toSet());

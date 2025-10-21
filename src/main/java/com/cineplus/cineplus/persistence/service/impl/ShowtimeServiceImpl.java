@@ -95,8 +95,8 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         List<Seat> seatsToGenerate = new ArrayList<>();
         char rowChar = 'A';
-        for (int r = 0; r < theater.getRows(); r++) {
-            for (int c = 1; c <= theater.getCols(); c++) {
+        for (int r = 0; r < theater.getRowCount(); r++) {
+            for (int c = 1; c <= theater.getColCount(); c++) {
                 String seatIdentifier = String.valueOf(rowChar) + c;
                 Seat seat = new Seat(null, showtime, seatIdentifier, SeatStatus.AVAILABLE);
                 seatsToGenerate.add(seat);
@@ -181,6 +181,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     @Override
     @Transactional
     public ShowtimeDto saveShowtime(ShowtimeDto showtimeDto) {
+        // Validar que la película y la sala existan
         Movie movie = movieRepository.findById(showtimeDto.getMovieId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found with id: " + showtimeDto.getMovieId()));
         Theater theater = theaterRepository.findById(showtimeDto.getTheaterId())
@@ -189,17 +190,9 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Showtime showtime = showtimeMapper.toEntity(showtimeDto);
         showtime.setMovie(movie);
         showtime.setTheater(theater);
-        // Asegúrate de que availableSeats se inicialice correctamente.
-        // Si el teatro ya tiene un totalSeats calculado, úsalo.
-        if (theater.getTotalSeats() > 0) {
-            showtime.setAvailableSeats(theater.getTotalSeats());
-        } else {
-            // Si totalSeats no está calculado aún en el teatro, puedes calcularlo aquí
-            // O asegurarte de que TheaterService lo calcule al guardar el teatro.
-            // Asumiremos que theater.getTotalSeats() ya está correcto.
-            showtime.setAvailableSeats(theater.getRows() * theater.getCols()); // Fallback
-        }
 
+        // Inicializa availableSeats con el total de asientos de la sala
+        showtime.setAvailableSeats(theater.getTotalSeats());
 
         Showtime savedShowtime = showtimeRepository.save(showtime);
         return showtimeMapper.toDto(savedShowtime);

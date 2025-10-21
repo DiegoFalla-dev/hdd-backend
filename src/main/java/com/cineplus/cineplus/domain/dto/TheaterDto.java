@@ -16,7 +16,7 @@ public class TheaterDto {
     private String cinemaName;
     private String name;
     private Theater.SeatMatrixType seatMatrixType;
-    private int rows;
-    private int cols;
+    private int rowCount;
+    private int colCount;
     private int totalSeats;
 }

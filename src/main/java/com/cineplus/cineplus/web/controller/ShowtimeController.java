@@ -98,10 +98,7 @@ public class ShowtimeController {
     // POST /api/showtimes
     @PostMapping
     public ResponseEntity<ShowtimeDto> createShowtime(@RequestBody ShowtimeDto showtimeDto) {
-
-        ShowtimeDto createdShowtime = showtimeDto;
-
-        createdShowtime = showtimeService.saveShowtime(showtimeDto);
+        ShowtimeDto createdShowtime = showtimeService.saveShowtime(showtimeDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdShowtime);
     }
 

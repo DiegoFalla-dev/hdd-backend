@@ -57,7 +57,7 @@ public class TheaterServiceImpl implements TheaterService {
 
         Theater theater = theaterMapper.toEntity(theaterDto);
         theater.setCinema(cinema); // Asocia el objeto Cinema real
-        theater.setTotalSeats(theater.getRows() * theater.getCols()); // Calcula el total de asientos
+        theater.setTotalSeats(theater.getRowCount() * theater.getColCount()); // Calcula el total de asientos
 
         Theater savedTheater = theaterRepository.save(theater);
         return theaterMapper.toDto(savedTheater);

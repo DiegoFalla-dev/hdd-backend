@@ -14,6 +14,10 @@ public interface TheaterMapper {
     @Mapping(source = "cinema.id", target = "cinemaId")
     @Mapping(source = "cinema.name", target = "cinemaName")
     @Mapping(source = "seatMatrixType", target = "seatMatrixType", qualifiedByName = "mapSeatMatrixTypeToString")
+    // Mantener 'rowCount' como target si cambiaste 'rows' en la entidad
+    @Mapping(source = "rowCount", target = "rowCount")
+    // Asegurarse de que 'cols' se mapea directamente si el nombre del campo no cambió en la entidad
+    @Mapping(source = "colCount", target = "colCount")
     TheaterDto toDto(Theater theater);
 
     @InheritInverseConfiguration
@@ -21,6 +25,10 @@ public interface TheaterMapper {
     @Mapping(target = "cinema", ignore = true) // Se establecerá en el servicio
     @Mapping(target = "totalSeats", ignore = true) // Se calculará en el servicio
     @Mapping(source = "seatMatrixType", target = "seatMatrixType", qualifiedByName = "mapStringToSeatMatrixType")
+    // Mantener 'rowCount' como source si cambiaste 'rows' en la entidad
+    @Mapping(target = "rowCount", source = "rowCount")
+    // Asegurarse de que 'cols' se mapea directamente si el nombre del campo no cambió en la entidad
+    @Mapping(target = "colCount", source = "colCount")
     Theater toEntity(TheaterDto theaterDto);
 
     @Named("mapSeatMatrixTypeToString")
