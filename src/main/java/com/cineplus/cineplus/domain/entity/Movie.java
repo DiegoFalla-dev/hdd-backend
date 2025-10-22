@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.util.List;
 
 @Entity
 @Table(name = "movies")
@@ -32,6 +33,23 @@ public class Movie {
     @Column(nullable = false, length = 20)
     private String duration; // e.g., "1h 45m"
 
-    private String cardImageUrl; // URL de la imagen para la tarjeta
-    private String bannerUrl;    // URL de la imagen del banner
+    private String cardImage; // 414x621px or 600x900px image URL
+    private String banner;    // 1280x480px or 1920x720px image URL
+    private String trailerUrl;
+
+    @ElementCollection
+    @CollectionTable(name = "movie_cast", joinColumns = @JoinColumn(name = "movie_id"))
+    @Column(name = "cast_member")
+    private List<String> cast;
+
+    @ElementCollection
+    @CollectionTable(name = "movie_showtimes", joinColumns = @JoinColumn(name = "movie_id"))
+    @Column(name = "showtime")
+    private List<String> showtimes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MovieStatus status;
+
+
 }
