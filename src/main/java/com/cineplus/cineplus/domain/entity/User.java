@@ -19,17 +19,38 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false, unique = true, length = 100)
     private String username;
+    
+    @Column(name = "national_id", length = 50, unique = true)
+    private String nationalId; // DNI - not encrypted per request
+    // Personal information
+    @Column(nullable = false, length = 100)
+    private String firstName; // nombre
 
-    @Column(nullable = false, unique = true, length = 255) // Email también como identificador único
-    private String email;
+    @Column(nullable = false, length = 100)
+    private String lastName; // apellido
 
-    @Column(nullable = false, length = 255)
-    private String password; // La contraseña se almacenará hasheada
+    @Column(nullable = false, unique = true, length = 255)
+    private String email; // correo
 
-    @ManyToMany(fetch = FetchType.EAGER) // Carga los roles inmediatamente con el usuario
+    @Column(length = 50)
+    private String birthDate; // fechaNacimiento (ISO string)
+
+    @Column(length = 20)
+    private String gender; // genero
+
+    @Column(length = 255)
+    private String avatar;
+
+    // Encrypted private fields
+    @Column(name = "phone_encrypted", length = 1024)
+    private String phoneEncrypted; // celular (encrypted)
+
+    @Column(length = 1024)
+    private String password; // contraseña hashed
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -37,8 +58,12 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    public User(String username, String email, String password) {
-        this.username = username;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PaymentMethod> paymentMethods = new HashSet<>();
+
+    public User(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
         this.password = password;
     }

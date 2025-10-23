@@ -40,20 +40,35 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void registerUser(RegisterRequestDto registerRequest) {
-        if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Username is already taken!");
-        }
-
+        // check email
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!");
         }
 
-        // Crear nuevo usuario
-        User user = new User(
-                registerRequest.getUsername(),
-                registerRequest.getEmail(),
-                passwordEncoder.encode(registerRequest.getPassword())
-        );
+        // derive or validate username
+        String username = registerRequest.getUsername();
+        if (username == null || username.isBlank()) {
+            // derive from email local part
+            username = registerRequest.getEmail().split("@")[0];
+        }
+        if (userRepository.existsByUsername(username)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Username is already taken!");
+        }
+
+        // Create new user
+        User user = new User();
+        user.setUsername(username);
+        user.setFirstName(registerRequest.getFirstName());
+        user.setLastName(registerRequest.getLastName());
+        user.setEmail(registerRequest.getEmail());
+    user.setNationalId(registerRequest.getNationalId());
+        user.setBirthDate(registerRequest.getBirthDate());
+        user.setAvatar(registerRequest.getAvatar());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+
+        if (registerRequest.getPhone() != null) {
+            user.setPhoneEncrypted(com.cineplus.cineplus.persistence.util.Encryptor.encrypt(registerRequest.getPhone()));
+        }
 
         Set<String> strRoles = registerRequest.getRoles();
         Set<Role> roles = new HashSet<>();
@@ -106,8 +121,8 @@ public class AuthServiceImpl implements AuthService {
 
         return new JwtResponseDto(jwt,
                 userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
+                userDetails.getUsername(), // This is the user's username (which you've configured as the email)
+                userDetails.getUsername(), // <-- FIX: Change from getEmail() to getUsername() here
                 roles,
                 "Bearer");
     }
