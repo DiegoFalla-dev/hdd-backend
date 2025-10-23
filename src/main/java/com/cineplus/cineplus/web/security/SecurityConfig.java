@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -57,18 +58,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+        http.cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll() // Permitir registro y login sin autenticación
-                        .requestMatchers("/api/test/**").permitAll() // Para endpoints de prueba si los hubiera
-                        .requestMatchers("/api/movies/**").permitAll() // Permitir a todos ver películas
-                        .requestMatchers("/api/cinemas/**").permitAll() // Permitir a todos ver cines
-                        .requestMatchers("/api/theaters","/api/theaters/**").permitAll() // Permitir a todos ver salas
-                        .requestMatchers("/api/showtimes", "/api/showtimes/**").permitAll() // Permitir a todos ver horarios y asientos (GET)
-                        .requestMatchers("/api/concessions","/api/concessions/**").permitAll() // Permitir a todos ver productos de dulcería
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/test/**").permitAll()
+                        .requestMatchers("/api/movies/**").permitAll()
+                        .requestMatchers("/api/cinemas/**").permitAll()
+                        .requestMatchers("/api/theaters","/api/theaters/**").permitAll()
+                        .requestMatchers("/api/showtimes", "/api/showtimes/**").permitAll()
+                        .requestMatchers("/api/concessions","/api/concessions/**").permitAll()
                         // .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
                         .anyRequest().authenticated()
