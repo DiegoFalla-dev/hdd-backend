@@ -12,8 +12,15 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterRequestDto {
-    private String username;
+    private String firstName;
+    private String lastName;
+    private String username; // optional
+    private String nationalId; // DNI
     private String email;
+    private String birthDate;
+    private String phone; // celular (plain text in DTO, will be encrypted before saving)
     private String password;
-    private Set<String> roles; // Nombres de los roles (ej. "ADMIN", "MANAGER", "USER")
+    private String confirmPassword;
+    private String avatar;
+    private Set<String> roles; // role names (e.g. "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER")
 }

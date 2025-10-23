@@ -4,25 +4,16 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="Se creo nuevos atributos para cines, peliculas y dulceria. Ahora todo lo del backend || base de datos es lo mismo que el front. atributos iguales">
+    <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="ACTUALIZACION: USUARIO, PERFIL USUARIO, METODOS DE PAGO ENCRYPTADOS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/CinemaDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/CinemaDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/ConcessionProductDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/ConcessionProductDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/MovieDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/MovieDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Cinema.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Cinema.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/ConcessionProduct.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/ConcessionProduct.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Movie.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Movie.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/MovieStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/MovieStatus.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/ConcessionProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/ConcessionProductMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/MovieMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/MovieMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/ConcessionProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/ConcessionProductServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/CinemaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/CinemaController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ConcessionProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ConcessionProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/MovieController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/MovieController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ShowtimeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ShowtimeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/TheaterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/TheaterController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/UserDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/AuthServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserDetailsImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserDetailsImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserDetailsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserDetailsServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/jwt/JwtUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/jwt/JwtUtils.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,9 +28,15 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feature-spring5" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -64,7 +61,7 @@
     </option>
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="2" />
@@ -80,21 +77,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.ECommerceCineplusBackendApplication.executor": "Run",
-    "JUnit.ECommerceCineplusBackendApplicationTests.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feature-actCinema",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "settings.build.tools.auto.reload": "ALL",
-    "settings.editor.selected.configurable": "project.propCompiler"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ECommerceCineplusBackendApplication.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ECommerceCineplusBackendApplicationTests.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;hotfix-userLogIn&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.build.tools.auto.reload&quot;: &quot;ALL&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propCompiler&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
-}]]></component>
+}</component>
+  <component name="Push.Settings">
+    <force-push-targets>
+      <force-push-target remote-path="origin" branch="hotfix-userLogIn" />
+    </force-push-targets>
+  </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\df10x\OneDrive\Documentos\GitHub\hdd-backend" />
@@ -149,7 +153,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761160275025</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="ACTUALIZACION: USUARIO, PERFIL USUARIO, METODOS DE PAGO ENCRYPTADOS">
+      <option name="closed" value="true" />
+      <created>1761196406959</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1761196406959</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -157,7 +169,8 @@
     <MESSAGE value="feature-LogIn|Register|Api's movies" />
     <MESSAGE value="feature-EndPoints" />
     <MESSAGE value="Se creo nuevos atributos para cines, peliculas y dulceria. Ahora todo lo del backend || base de datos es lo mismo que el front. atributos iguales" />
-    <option name="LAST_COMMIT_MESSAGE" value="Se creo nuevos atributos para cines, peliculas y dulceria. Ahora todo lo del backend || base de datos es lo mismo que el front. atributos iguales" />
+    <MESSAGE value="ACTUALIZACION: USUARIO, PERFIL USUARIO, METODOS DE PAGO ENCRYPTADOS" />
+    <option name="LAST_COMMIT_MESSAGE" value="ACTUALIZACION: USUARIO, PERFIL USUARIO, METODOS DE PAGO ENCRYPTADOS" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/hdd_backend$ECommerceCineplusBackendApplication.ic" NAME="ECommerceCineplusBackendApplication Coverage Results" MODIFIED="1760969853602" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
