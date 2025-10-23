@@ -4,11 +4,25 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="feature-EndPoints">
+    <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="Se creo nuevos atributos para cines, peliculas y dulceria. Ahora todo lo del backend || base de datos es lo mismo que el front. atributos iguales">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/CinemaDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/CinemaDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/ConcessionProductDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/ConcessionProductDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/MovieDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/MovieDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Cinema.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Cinema.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/ConcessionProduct.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/ConcessionProduct.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Movie.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Movie.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/MovieStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/MovieStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/ConcessionProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/ConcessionProductMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/MovieMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/MovieMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/ConcessionProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/ConcessionProductServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/CinemaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/CinemaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ConcessionProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ConcessionProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/MovieController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/MovieController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ShowtimeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/ShowtimeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/TheaterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/TheaterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,14 +133,31 @@
       <option name="project" value="LOCAL" />
       <updated>1760979315856</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Se creo nuevos atributos para cines, peliculas y dulceria. Ahora todo lo del backend || base de datos es lo mismo que el front. atributos iguales">
+      <option name="closed" value="true" />
+      <created>1761160268185</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1761160268185</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Se creo nuevos atributos para cines, peliculas y dulceria. Ahora todo lo del backend || base de datos es lo mismo que el front. atributos iguales">
+      <option name="closed" value="true" />
+      <created>1761160275025</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1761160275025</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feature-appbackend" />
     <MESSAGE value="feature-LogIn|Register|Api's movies" />
     <MESSAGE value="feature-EndPoints" />
-    <option name="LAST_COMMIT_MESSAGE" value="feature-EndPoints" />
+    <MESSAGE value="Se creo nuevos atributos para cines, peliculas y dulceria. Ahora todo lo del backend || base de datos es lo mismo que el front. atributos iguales" />
+    <option name="LAST_COMMIT_MESSAGE" value="Se creo nuevos atributos para cines, peliculas y dulceria. Ahora todo lo del backend || base de datos es lo mismo que el front. atributos iguales" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/hdd_backend$ECommerceCineplusBackendApplication.ic" NAME="ECommerceCineplusBackendApplication Coverage Results" MODIFIED="1760969853602" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">

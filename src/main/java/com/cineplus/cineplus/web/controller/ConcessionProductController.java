@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 @RestController
 @RequestMapping("/api/concessions")
 @RequiredArgsConstructor
 public class ConcessionProductController {
 
-    private final ConcessionProductService concessionProductService;
+    private final ConcessionProductService  concessionProductService;
 
     // GET /api/concessions?cinema={id}
     // GET /api/concessions?cinema={id}&category={category}

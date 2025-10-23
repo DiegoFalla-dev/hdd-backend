@@ -9,8 +9,8 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MovieMapper {
-    @Mapping(source = "cardImage", target = "cardImage")
-    @Mapping(source = "banner", target = "banner")
+    @Mapping(source = "cardImageUrl", target = "cardImageUrl")
+    @Mapping(source = "bannerUrl", target = "bannerUrl")
     @Mapping(source = "trailerUrl", target = "trailerUrl")
     @Mapping(source = "cast", target = "cast")
     @Mapping(source = "showtimes", target = "showtimes")

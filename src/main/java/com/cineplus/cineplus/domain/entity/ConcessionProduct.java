@@ -41,7 +41,7 @@ public class ConcessionProduct {
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "cinema_id")
     )
-    private Set<Cinema> cinemas; // Los cines donde está disponible este producto
+    private Set<Cinema> cinemas;
 
     public enum ProductCategory {
         COMBOS, CANCHITA, BEBIDAS, SNACKS
