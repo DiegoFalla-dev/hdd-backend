@@ -40,22 +40,30 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User registerNewUser(RegisterRequestDto registerRequest) {
-        if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is already taken!");
-        }
+        // Validate email uniqueness
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already in use!");
         }
 
         User user = new User();
-        user.setUsername(registerRequest.getUsername());
+        // Use provided first/last names
+        user.setFirstName(registerRequest.getFirstName());
+        user.setLastName(registerRequest.getLastName());
+    user.setNationalId(registerRequest.getNationalId());
         user.setEmail(registerRequest.getEmail());
+        user.setBirthDate(registerRequest.getBirthDate());
+        user.setAvatar(registerRequest.getAvatar());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+
+        // phone stored encrypted
+        if (registerRequest.getPhone() != null) {
+            user.setPhoneEncrypted(com.cineplus.cineplus.persistence.util.Encryptor.encrypt(registerRequest.getPhone()));
+        }
 
         // Asignar el rol por defecto (ej. ROLE_USER)
         Role userRole = roleRepository.findByName(Role.RoleName.ROLE_USER)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User Role not found."));
-        user.setRoles(Collections.singleton(userRole)); // Asigna solo el rol de usuario por defecto
+        user.setRoles(Collections.singleton(userRole)); // Assign default ROLE_USER
 
         return userRepository.save(user);
     }

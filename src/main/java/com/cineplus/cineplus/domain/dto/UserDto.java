@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,7 +14,12 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserDto {
     private Long id;
-    private String username;
+    private String firstName;
+    private String lastName;
+    private String nationalId;
     private String email;
+    private String birthDate;
+    private String avatar;
     private Set<String> roles;
+    private List<PaymentMethodDto> paymentMethods;
 }
