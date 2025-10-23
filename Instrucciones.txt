@@ -1,0 +1,384 @@
+¡Claro! Entendido. Te proporcionaré una estructura de colecciones de Postman (en texto, para que puedas recrearlas fácilmente) para probar todos los métodos GET y POST de los controladores que hemos creado. Incluiré ejemplos de cuerpos de solicitud (body) para los POST.
+
+Organizaremos esto por controladores, y dentro de cada uno, por carpetas para GET y POST.
+
+Asunción: Tu backend se ejecuta en http://localhost:8080.
+
+Colección Principal: Cineplus Backend API Tests
+1. Folder: Movies
+
+Request 1: Get All Movies
+
+Method: GET
+
+URL: http://localhost:8080/api/movies
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera una lista de todas las películas.
+
+Request 2: Get Movie by ID
+
+Method: GET
+
+URL: http://localhost:8080/api/movies/1 (cambia 1 por un ID de película existente)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera una película específica por su ID.
+
+Request 1: Create New Movie
+
+Method: POST
+
+URL: http://localhost:8080/api/movies
+
+Headers: Content-Type: application/json
+
+Body: raw (JSON)
+
+code
+JSON
+download
+content_copy
+expand_less
+{
+    "title": "Duna: Parte Dos",
+    "synopsis": "Paul Atreides se une a Chani y a los Fremen mientras busca venganza contra los conspiradores que destruyeron a su familia. Enfrentando una elección entre el amor de su vida y el destino del universo conocido, se esfuerza por evitar un futuro terrible que solo él puede prever.",
+    "genre": "Ciencia Ficción, Aventura",
+    "classification": "PG-13",
+    "duration": "2h 46m",
+    "cardImageUrl": "https://example.com/dune2_card.jpg",
+    "bannerUrl": "https://example.com/dune2_banner.jpg"
+}
+
+Descripción: Crea una nueva película en la base de datos.
+
+2. Folder: Cinemas
+
+Request 1: Get All Cinemas
+
+Method: GET
+
+URL: http://localhost:8080/api/cinemas
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera una lista de todos los cines.
+
+Request 2: Get Cinema by ID
+
+Method: GET
+
+URL: http://localhost:8080/api/cinemas/1 (cambia 1 por un ID de cine existente)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera un cine específico por su ID.
+
+Request 1: Create New Cinema
+
+Method: POST
+
+URL: http://localhost:8080/api/cinemas
+
+Headers: Content-Type: application/json
+
+Body: raw (JSON)
+
+code
+JSON
+download
+content_copy
+expand_less
+{
+    "name": "Cineplus Mall del Sol"
+}
+
+Descripción: Crea un nuevo cine.
+
+3. Folder: Theaters
+
+Request 1: Get All Theaters
+
+Method: GET
+
+URL: http://localhost:8080/api/theaters
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera una lista de todas las salas de cine.
+
+Request 2: Get Theaters by Cinema ID
+
+Method: GET
+
+URL: http://localhost:8080/api/theaters?cinemaId=1 (cambia 1 por un ID de cine existente)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera todas las salas de un cine específico.
+
+Request 3: Get Theater by ID
+
+Method: GET
+
+URL: http://localhost:8080/api/theaters/1 (cambia 1 por un ID de sala existente)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera una sala específica por su ID.
+
+Request 1: Create New Theater
+
+Method: POST
+
+URL: http://localhost:8080/api/theaters
+
+Headers: Content-Type: application/json
+
+Body: raw (JSON)
+
+code
+JSON
+download
+content_copy
+expand_less
+{
+    "cinemaId": 1,          
+    "name": "Sala 5 - IMAX",
+    "seatMatrixType": "XLARGE", 
+    "rows": 10,
+    "cols": 20
+}
+
+Descripción: Crea una nueva sala asociada a un cine. Asegúrate de que cinemaId exista.
+
+4. Folder: Showtimes
+
+Request 1: Get Available Showtime Dates for a Movie in a Cinema
+
+Method: GET
+
+URL: http://localhost:8080/api/showtimes?cinema=1&movie=1 (cambia cinema=1 y movie=1 por IDs existentes)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera las fechas únicas en las que una película está disponible en un cine. (El DTO actual devuelve ShowtimeDto con solo la fecha).
+
+Request 2: Get Movie Showtimes by Date and Format in a Cinema
+
+Method: GET
+
+URL: http://localhost:8080/api/showtimes?cinema=1&movie=1&date=2024-07-20&format=_2D (ajusta IDs, fecha y formato)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera los horarios específicos para una película en un cine, en una fecha y formato dados.
+
+Request 3: Get Showtime Details by ID
+
+Method: GET
+
+URL: http://localhost:8080/api/showtimes/1?cinema=1 (cambia id y cinema por IDs existentes)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera los detalles de un horario específico.
+
+Request 4: Get Occupied Seats for a Showtime
+
+Method: GET
+
+URL: http://localhost:8080/api/showtimes/1/seats/occupied (cambia 1 por un ID de showtime existente)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera una lista de identificadores de asientos (ej. "A1", "B5") que están ocupados o temporalmente reservados para un horario.
+
+Request 1: Create New Showtime (Manual)
+
+Method: POST
+
+URL: http://localhost:8080/api/showtimes (Este endpoint no está en el ShowtimeController actual, porque no definí un método saveShowtime como en otros controladores, pensando que la creación de horarios podría ser más compleja. Si necesitas crear Showtimes directamente, deberíamos añadir un saveShowtime al ShowtimeService e implementarlo. Por ahora, puedes omitir este POST o agregar el servicio/método.)
+
+Headers: Content-Type: application/json
+
+Body: raw (JSON)
+
+code
+JSON
+download
+content_copy
+expand_less
+{
+    "movieId": 1,
+    "theaterId": 1,
+    "date": "2024-07-20",
+    "time": "18:30:00",
+    "format": "_2D",
+    "availableSeats": 100 // Esto lo calcula el servicio, pero se puede enviar
+}
+
+Descripción: (PENDIENTE: añadir método saveShowtime al servicio e implementación si se requiere un endpoint de creación directa).
+
+Request 2: Generate Seats for Showtime
+
+Method: POST
+
+URL: http://localhost:8080/api/showtimes/1/seats/generate (cambia 1 por un ID de showtime existente)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Genera todos los asientos para un horario dado, basándose en la configuración de la sala. Deberías hacer esto una vez por Showtime después de crearlo.
+
+Request 3: Temporarily Reserve Seats
+
+Method: POST
+
+URL: http://localhost:8080/api/showtimes/1/seats/reserve (cambia 1 por un ID de showtime existente)
+
+Headers: Content-Type: application/json
+
+Body: raw (JSON)
+
+code
+JSON
+download
+content_copy
+expand_less
+[
+    "A1", "A2", "B3"
+]
+
+Descripción: Intenta reservar temporalmente un conjunto de asientos. Devuelve los asientos que no se pudieron reservar (si los hay).
+
+Request 4: Release Temporarily Reserved Seats
+
+Method: POST
+
+URL: http://localhost:8080/api/showtimes/1/seats/release (cambia 1 por un ID de showtime existente)
+
+Headers: Content-Type: application/json
+
+Body: raw (JSON)
+
+code
+JSON
+download
+content_copy
+expand_less
+[
+    "A1", "A2"
+]
+
+Descripción: Libera asientos que fueron reservados temporalmente.
+
+Request 5: Confirm Seats as Occupied
+
+Method: POST
+
+URL: http://localhost:8080/api/showtimes/1/seats/confirm (cambia 1 por un ID de showtime existente)
+
+Headers: Content-Type: application/json
+
+Body: raw (JSON)
+
+code
+JSON
+download
+content_copy
+expand_less
+[
+    "B3"
+]
+
+Descripción: Confirma que los asientos temporalmente reservados ahora están ocupados (esto ocurre después de una compra exitosa).
+
+5. Folder: Concessions
+
+Request 1: Get All Concession Products by Cinema
+
+Method: GET
+
+URL: http://localhost:8080/api/concessions?cinema=1 (cambia 1 por un ID de cine existente)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera todos los productos de dulcería disponibles en un cine específico.
+
+Request 2: Get Concession Products by Cinema and Category
+
+Method: GET
+
+URL: http://localhost:8080/api/concessions?cinema=1&category=Canchita (cambia 1 por un ID de cine y Canchita por una categoría válida como COMBOS, BEBIDAS, SNACKS)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera los productos de dulcería de una categoría específica en un cine.
+
+Request 3: Get Concession Product by ID
+
+Method: GET
+
+URL: http://localhost:8080/api/concessions/1 (cambia 1 por un ID de producto existente)
+
+Headers: Content-Type: application/json
+
+Body: none
+
+Descripción: Recupera un producto de dulcería específico por su ID.
+
+Request 1: Create New Concession Product
+
+Method: POST
+
+URL: http://localhost:8080/api/concessions
+
+Headers: Content-Type: application/json
+
+Body: raw (JSON)
+
+code
+JSON
+download
+content_copy
+expand_less
+{
+    "name": "Combo Dúo Grande",
+    "description": "2 bebidas grandes, 1 canchita grande, 1 nacho.",
+    "price": 15.50,
+    "imageUrl": "https://example.com/combo_duo.jpg",
+    "category": "COMBOS",
+    "cinemaIds": [1] 
+}
+
+Descripción: Crea un nuevo producto de dulcería. Asegúrate de que los cinemaIds existan.
