@@ -121,8 +121,8 @@ public class AuthServiceImpl implements AuthService {
 
         return new JwtResponseDto(jwt,
                 userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
+                userDetails.getUsername(), // This is the user's username (which you've configured as the email)
+                userDetails.getUsername(), // <-- FIX: Change from getEmail() to getUsername() here
                 roles,
                 "Bearer");
     }
