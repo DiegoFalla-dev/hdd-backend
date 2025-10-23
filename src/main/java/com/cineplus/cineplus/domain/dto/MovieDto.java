@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.util.List;
+import com.cineplus.cineplus.domain.entity.MovieStatus;
 
 @Getter
 @Setter
@@ -18,4 +20,8 @@ public class MovieDto {
     private String duration;
     private String cardImageUrl;
     private String bannerUrl;
+    private String trailerUrl;
+    private List<String> cast;
+    private List<String> showtimes;
+    private MovieStatus status;
 }

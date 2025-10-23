@@ -20,5 +20,5 @@ public class ConcessionProductDto {
     private BigDecimal price;
     private String imageUrl;
     private ConcessionProduct.ProductCategory category;
-    private Set<Long> cinemaIds; // IDs de los cines donde está disponible
+    private Set<Long> cinemaId; // IDs de los cines donde está disponible
 }

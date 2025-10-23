@@ -11,6 +11,10 @@ import org.mapstruct.ReportingPolicy;
 public interface MovieMapper {
     @Mapping(source = "cardImageUrl", target = "cardImageUrl")
     @Mapping(source = "bannerUrl", target = "bannerUrl")
+    @Mapping(source = "trailerUrl", target = "trailerUrl")
+    @Mapping(source = "cast", target = "cast")
+    @Mapping(source = "showtimes", target = "showtimes")
+    @Mapping(source = "status", target = "status")
     MovieDto toDto(Movie movie);
 
     @InheritInverseConfiguration
