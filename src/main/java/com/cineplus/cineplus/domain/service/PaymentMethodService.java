@@ -7,4 +7,6 @@ import java.util.List;
 public interface PaymentMethodService {
     PaymentMethod addPaymentMethod(Long userId, PaymentMethod paymentMethod);
     List<PaymentMethod> getPaymentMethodsForUser(Long userId);
+    boolean deletePaymentMethod(Long userId, Long paymentMethodId);
+    PaymentMethod setDefault(Long userId, Long paymentMethodId);
 }

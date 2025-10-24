@@ -41,4 +41,17 @@ public class PaymentMethodController {
         PaymentMethod saved = paymentMethodService.addPaymentMethod(userId, pm);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved.getId());
     }
+
+    @DeleteMapping("/{paymentMethodId}")
+    public ResponseEntity<Void> delete(@PathVariable Long userId, @PathVariable Long paymentMethodId) {
+        boolean deleted = paymentMethodService.deletePaymentMethod(userId, paymentMethodId);
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    @PatchMapping("/{paymentMethodId}/default")
+    public ResponseEntity<PaymentMethodDto> makeDefault(@PathVariable Long userId, @PathVariable Long paymentMethodId) {
+        PaymentMethod updated = paymentMethodService.setDefault(userId, paymentMethodId);
+        PaymentMethodDto dto = userMapper.toPaymentMethodDto(updated);
+        return ResponseEntity.ok(dto);
+    }
 }

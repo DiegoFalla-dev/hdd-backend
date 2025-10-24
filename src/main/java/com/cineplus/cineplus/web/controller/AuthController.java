@@ -29,4 +29,10 @@ public class AuthController {
         JwtResponseDto jwtResponse = authService.authenticateUser(loginRequest);
         return ResponseEntity.ok(jwtResponse);
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponseDto> refresh(@RequestBody String refreshToken) {
+        JwtResponseDto jwtResponse = authService.refreshToken(refreshToken);
+        return ResponseEntity.ok(jwtResponse);
+    }
 }

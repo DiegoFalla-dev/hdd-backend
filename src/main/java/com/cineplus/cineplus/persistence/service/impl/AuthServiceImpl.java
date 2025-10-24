@@ -1,8 +1,9 @@
 package com.cineplus.cineplus.persistence.service.impl;
 
-import com.cineplus.cineplus.domain.dto.JwtResponseDto;
+// JwtResponseDto import already present above
 import com.cineplus.cineplus.domain.dto.LoginRequestDto;
 import com.cineplus.cineplus.domain.dto.RegisterRequestDto;
+import com.cineplus.cineplus.domain.dto.JwtResponseDto;
 import com.cineplus.cineplus.domain.entity.Role;
 import com.cineplus.cineplus.domain.entity.Role.RoleName;
 import com.cineplus.cineplus.domain.entity.User;
@@ -143,5 +144,27 @@ public class AuthServiceImpl implements AuthService {
                 userDetails.getEmail(),
                 roles,
                 "Bearer");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public JwtResponseDto refreshToken(String refreshToken) {
+        // Simple implementation: validate structure and re-issue new JWT for the user encoded inside if still valid.
+        // In a robust design you would persist refresh tokens and check revocation/expiry.
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Refresh token missing");
+        }
+        String username = jwtUtils.getUserNameFromJwtToken(refreshToken);
+        if (username == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+        }
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found for refresh token"));
+
+        // Create authentication principal manually (lightweight) to reuse generation logic
+        UserDetailsImpl principal = UserDetailsImpl.build(user);
+        String newAccessToken = jwtUtils.generateTokenFromUsername(principal.getUsername());
+        List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(java.util.stream.Collectors.toList());
+        return new JwtResponseDto(newAccessToken, principal.getId(), principal.getUsername(), principal.getEmail(), roles, "Bearer");
     }
 }
