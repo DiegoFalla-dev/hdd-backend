@@ -20,6 +20,9 @@ public class PaymentMethod {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "name", nullable = false, length = 100) // <-- ¡Añade esta línea!
+    private String name;
+
     // Encrypted fields
     @Column(name = "card_number_encrypted", length = 1024)
     private String cardNumberEncrypted; // tarjeta (encrypted)
