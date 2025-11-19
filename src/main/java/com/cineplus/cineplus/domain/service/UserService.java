@@ -1,8 +1,9 @@
 package com.cineplus.cineplus.domain.service;
 
 import com.cineplus.cineplus.domain.dto.RegisterRequestDto;
-import com.cineplus.cineplus.domain.dto.UserDto; // Necesitaremos un UserDto simple
+import com.cineplus.cineplus.domain.dto.UserDto;
 import com.cineplus.cineplus.domain.entity.User;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -10,5 +11,7 @@ public interface UserService {
     Optional<User> findByEmail(String email);
     Optional<User> findById(Long id);
     User registerNewUser(RegisterRequestDto registerRequest);
-    // Métodos para actualizar/eliminar usuario si fueran necesarios
+    UserDto getUserById(Long id);
+    List<UserDto> getAllUsers();
+    UserDto updateUser(Long id, UserDto userDto);
 }

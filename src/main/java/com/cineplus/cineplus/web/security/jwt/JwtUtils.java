@@ -30,7 +30,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
                 .claim("id", userPrincipal.getId()) // Puedes añadir claims adicionales como el ID
-                .claim("email", userPrincipal.getEmail())
+                .claim("email", userPrincipal.getUsername())
                 .claim("roles", userPrincipal.getAuthorities().stream().map(Object::toString).collect(Collectors.toList()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
