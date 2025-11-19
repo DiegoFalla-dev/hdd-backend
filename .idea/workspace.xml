@@ -5,15 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="hotfix-login&amp;register-funcional">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/CreateOrderDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/CreateOrderItemDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/OrderDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/OrderItemDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/PromotionDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/SeatDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/DiscountType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Order.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/OrderItem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/OrderStatus.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/Promotion.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/TicketStatus.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/OrderItemRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/OrderRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/repository/PromotionRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/OrderItemService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/OrderService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/PromotionService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/OrderItemMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/OrderMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/PaymentMethodMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/PaymentMethodMapping.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/PromotionMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/mapper/SeatMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/OrderItemServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/OrderServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/PromotionServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/OrderController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/controller/PromotionController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/UserSecurity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/dto/UserDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/AuthServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserDetailsImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserDetailsImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserDetailsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserDetailsServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/persistence/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/jwt/JwtUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/web/security/jwt/JwtUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/PaymentMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cineplus/cineplus/domain/entity/PaymentMethod.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +50,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Enum" />
         <option value="Class" />
       </list>
     </option>
@@ -89,15 +114,21 @@
     "RunOnceActivity.git.unshallow": "true",
     "ToolWindow.Coverage.ShowToolbar": "false",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "hotfix-ESTABLE",
+    "git-widget-placeholder": "hotfix-cambios",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/df10x/OneDrive/Documentos/IntelliJ/hdd-backend/src/main/java/com/cineplus/cineplus/persistence/service/impl",
     "settings.build.tools.auto.reload": "ALL",
     "settings.editor.selected.configurable": "preferences.fileTypes",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\df10x\OneDrive\Documentos\IntelliJ\hdd-backend\src\main\java\com\cineplus\cineplus\persistence\service\impl" />
+      <recent name="C:\Users\df10x\OneDrive\Documentos\IntelliJ\hdd-backend\src\main\java\com\cineplus\cineplus\persistence\mapper" />
+      <recent name="C:\Users\df10x\OneDrive\Documentos\IntelliJ\hdd-backend\src\main\java\com\cineplus\cineplus\domain\service" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\df10x\OneDrive\Documentos\GitHub\hdd-backend" />
       <recent name="C:\Users\df10x\OneDrive\Documentos\GitHub\hdd-backend\src\main\java\com\cineplus\cineplus" />
@@ -116,6 +147,15 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
