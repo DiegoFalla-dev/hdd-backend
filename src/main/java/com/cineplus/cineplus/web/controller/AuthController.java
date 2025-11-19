@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:3000", "https://hdd-frontend.onrender.com"})
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

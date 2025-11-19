@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="ENTRADA ESTRUCTURACION DE BD Y METODOS" />
+    <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="ACTUALIZACION" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -224,7 +224,23 @@
       <option name="project" value="LOCAL" />
       <updated>1763535470706</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="ACTUALIZACION">
+      <option name="closed" value="true" />
+      <created>1763535734905</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1763535734905</updated>
+    </task>
+    <task id="LOCAL-00011" summary="ACTUALIZACION">
+      <option name="closed" value="true" />
+      <created>1763535894213</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1763535894213</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -236,7 +252,8 @@
     <MESSAGE value="hotfix-login&amp;register-funcional" />
     <MESSAGE value="acs" />
     <MESSAGE value="ENTRADA ESTRUCTURACION DE BD Y METODOS" />
-    <option name="LAST_COMMIT_MESSAGE" value="ENTRADA ESTRUCTURACION DE BD Y METODOS" />
+    <MESSAGE value="ACTUALIZACION" />
+    <option name="LAST_COMMIT_MESSAGE" value="ACTUALIZACION" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/hdd_backend$ECommerceCineplusBackendApplication.ic" NAME="ECommerceCineplusBackendApplication Coverage Results" MODIFIED="1761219262072" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">

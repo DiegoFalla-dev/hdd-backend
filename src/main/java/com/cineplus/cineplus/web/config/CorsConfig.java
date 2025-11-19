@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Aplica a todos los endpoints
-                        .allowedOrigins("http://localhost:5173") // Tu frontend Vite
+                        .allowedOrigins("http://localhost:5173", "http://localhost:3000", "https://hdd-frontend.onrender.com") // Tu frontend Vite
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

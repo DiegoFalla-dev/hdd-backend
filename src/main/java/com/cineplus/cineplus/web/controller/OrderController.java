@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:3000", "https://hdd-frontend.onrender.com"})
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
