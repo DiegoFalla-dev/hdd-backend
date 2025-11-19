@@ -17,8 +17,4 @@ COPY --from=build /app/target/cineplus-0.0.1-SNAPSHOT.jar /api-v1.jar
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
 
 ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /api-v1.jar"]
-FROM amazoncorretto:21-alpine-jdk
-
-COPY target/cineplus-0.0.1-SNAPSHOT.jar /api-v1.jar
-
-ENTRYPOINT ["java, -jar", "/api-v1.jar"]
+    
