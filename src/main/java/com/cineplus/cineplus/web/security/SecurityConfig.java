@@ -18,7 +18,6 @@ import com.cineplus.cineplus.web.security.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.http.HttpMethod;
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -60,21 +59,21 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // Permitir acceso a la autenticación y registro
-                        .requestMatchers(antMatcher("/api/auth/**")).permitAll()
-                        // Permitir GET (lectura) en endpoints públicos sin autenticación
-                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/cinemas/**")).permitAll()
-                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/movies/**")).permitAll()
-                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/theaters/**")).permitAll()
-                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/showtimes/**")).permitAll()
-                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/concessions/**")).permitAll()
-                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/promotions/**")).permitAll()
-                        // Proteger los endpoints de usuario. Solo usuarios autenticados pueden acceder.
-                        .requestMatchers(antMatcher("/api/users/**")).authenticated()
-                        .requestMatchers(antMatcher("/api/orders/**")).authenticated()
-                        .requestMatchers(antMatcher("/api/payment-methods/**")).authenticated()
-                        // Cualquier otra solicitud requiere autenticación
-                        .anyRequest().authenticated()
+                    // Permitir acceso a la autenticación y registro
+                    .requestMatchers("/api/auth/**").permitAll()
+                    // Permitir GET (lectura) en endpoints públicos sin autenticación
+                    .requestMatchers(HttpMethod.GET, "/api/cinemas", "/api/cinemas/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/movies", "/api/movies/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/theaters", "/api/theaters/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/showtimes", "/api/showtimes/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/concessions", "/api/concessions/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/promotions", "/api/promotions/**").permitAll()
+                    // Proteger los endpoints de usuario. Solo usuarios autenticados pueden acceder.
+                    .requestMatchers("/api/users/**").authenticated()
+                    .requestMatchers("/api/orders/**").authenticated()
+                    .requestMatchers("/api/payment-methods/**").authenticated()
+                    // Cualquier otra solicitud requiere autenticación
+                    .anyRequest().authenticated()
                 );
 
         http.authenticationProvider(authenticationProvider());
