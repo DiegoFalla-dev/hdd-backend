@@ -10,7 +10,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,8 +17,8 @@ import com.cineplus.cineplus.persistence.service.impl.*;
 import com.cineplus.cineplus.web.security.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher; // Importar esto
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher; // Importar esto estáticamente si prefieres
+import org.springframework.http.HttpMethod;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -62,14 +61,20 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         // Permitir acceso a la autenticación y registro
-                        .requestMatchers(antMatcher("/api/auth/**")).permitAll() // Ojo: usa antMatcher
+                        .requestMatchers(antMatcher("/api/auth/**")).permitAll()
+                        // Permitir GET (lectura) en endpoints públicos sin autenticación
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/cinemas/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/movies/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/theaters/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/showtimes/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/concessions/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/promotions/**")).permitAll()
                         // Proteger los endpoints de usuario. Solo usuarios autenticados pueden acceder.
                         .requestMatchers(antMatcher("/api/users/**")).authenticated()
-                        // Si tienes otros endpoints públicos, agrégalos aquí.
-                        // Por ejemplo, para recursos estáticos o info pública:
-                        // .requestMatchers(antMatcher("/public/**")).permitAll()
+                        .requestMatchers(antMatcher("/api/orders/**")).authenticated()
+                        .requestMatchers(antMatcher("/api/payment-methods/**")).authenticated()
                         // Cualquier otra solicitud requiere autenticación
-                        .anyRequest().authenticated() // Cambia a authenticated() para el resto
+                        .anyRequest().authenticated()
                 );
 
         http.authenticationProvider(authenticationProvider());
