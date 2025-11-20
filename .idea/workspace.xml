@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="hotfix-login&amp;register-funcional">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,14 +71,16 @@
   "keyToString": {
     "Application.ECommerceCineplusBackendApplication.executor": "Run",
     "JUnit.ECommerceCineplusBackendApplicationTests.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "ToolWindow.Coverage.ShowToolbar": "false",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "hotfix-ESTABLE",
+    "git-widget-placeholder": "hotfix-ESTABLE-BUTACAS",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/df10x/OneDrive/Escritorio/hdd-backend",
     "settings.build.tools.auto.reload": "ALL",
     "settings.editor.selected.configurable": "preferences.fileTypes",
     "show.migrate.to.gradle.popup": "false"

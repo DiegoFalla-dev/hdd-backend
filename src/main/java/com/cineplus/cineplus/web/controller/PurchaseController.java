@@ -22,7 +22,7 @@ import java.util.List;
  * - GET    /api/users/{userId}/purchases        - Historial de compras del usuario
  * - GET    /api/purchases/{purchaseNumber}      - Detalle de una compra específica
  */
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "https://hdd-frontend.onrender.com"})
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor

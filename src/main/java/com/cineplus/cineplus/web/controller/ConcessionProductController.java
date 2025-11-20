@@ -20,7 +20,7 @@ import java.util.List;
  * Si el frontend cambia de puerto o se despliega en producción,
  * actualizar las URLs en @CrossOrigin y en SecurityConfig.java
  */
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "https://hdd-frontend.onrender.com"})
 @RestController
 @RequestMapping("/api/concessions")
 @RequiredArgsConstructor

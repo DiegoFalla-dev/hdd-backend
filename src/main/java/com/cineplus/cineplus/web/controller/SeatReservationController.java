@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * - GET    /api/seat-reservations/{sessionId}/seats    - Obtener asientos de una sesión
  * - GET    /api/seat-reservations/{showtimeId}/matrix  - Obtener matriz de asientos
  */
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "https://hdd-frontend.onrender.com"})
 @RestController
 @RequestMapping("/api/seat-reservations")
 @RequiredArgsConstructor
