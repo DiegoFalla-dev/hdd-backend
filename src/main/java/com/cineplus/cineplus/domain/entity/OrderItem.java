@@ -1,19 +1,9 @@
 package com.cineplus.cineplus.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "order_items")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class OrderItem {
 
     @Id
@@ -21,27 +11,22 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order; // A qué orden pertenece esta entrada
+    @JoinColumn(name = "order_id")
+    private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "showtime_id", nullable = false)
-    private Showtime showtime; // A qué función corresponde esta entrada
+    private Long seatId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seat_id", nullable = false)
-    private Seat seat; // Qué asiento específico se compró
+    private String seatIdentifier;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price; // Precio individual de la entrada
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "ticket_status", nullable = false)
-    private TicketStatus ticketStatus; // ENUM: VALID, USED, CANCELLED
+    public Order getOrder() { return order; }
+    public void setOrder(Order order) { this.order = order; }
 
-    @Column(name = "qr_code_ticket_url", length = 255)
-    private String qrCodeTicketUrl; // URL del código QR específico para esta entrada
+    public Long getSeatId() { return seatId; }
+    public void setSeatId(Long seatId) { this.seatId = seatId; }
 
-    @Column(name = "ticket_pdf_url", length = 255)
-    private String ticketPdfUrl; // URL del PDF de la entrada individual
+    public String getSeatIdentifier() { return seatIdentifier; }
+    public void setSeatIdentifier(String seatIdentifier) { this.seatIdentifier = seatIdentifier; }
 }

@@ -1,59 +1,44 @@
 package com.cineplus.cineplus.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Quién realizó la compra
+    private Long showtimeId;
 
-    @Column(name = "order_date", nullable = false)
-    private LocalDateTime orderDate;
+    private Long userId;
 
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalAmount;
+    private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_method_id", nullable = false)
-    private PaymentMethod paymentMethod; // Método de pago utilizado
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OrderItem> items = new ArrayList<>();
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "order_status", nullable = false)
-    private OrderStatus orderStatus; // ENUM: PENDING, COMPLETED, CANCELLED, REFUNDED
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    @Column(name = "invoice_number", unique = true, length = 255)
-    private String invoiceNumber; // Número único de la factura
+    public Long getShowtimeId() { return showtimeId; }
+    public void setShowtimeId(Long showtimeId) { this.showtimeId = showtimeId; }
 
-    @Column(name = "invoice_pdf_url", length = 255)
-    private String invoicePdfUrl; // URL del PDF de la factura
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
-    @Column(name = "qr_code_url", length = 255)
-    private String qrCodeUrl; // URL del código QR general de la orden (si aplica)
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>(); // Las entradas individuales de esta orden
+    public List<OrderItem> getItems() { return items; }
+    public void setItems(List<OrderItem> items) { this.items = items; }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promotion_id")
-    private Promotion promotion; // Si solo se aplica un descuento por orden
+    public void addItem(OrderItem item) {
+        item.setOrder(this);
+        this.items.add(item);
+    }
 }

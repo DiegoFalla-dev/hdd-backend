@@ -1,27 +1,27 @@
 package com.cineplus.cineplus.domain.repository;
 
 import com.cineplus.cineplus.domain.entity.Seat;
-import com.cineplus.cineplus.domain.entity.Seat.SeatStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Set;
 
-@Repository
 public interface SeatRepository extends JpaRepository<Seat, Long> {
     List<Seat> findByShowtimeId(Long showtimeId);
-    List<Seat> findByShowtimeIdAndSeatIdentifierIn(Long showtimeId, Set<String> seatIdentifiers);
 
-    @Modifying
-    @Query("UPDATE Seat s SET s.status = :newStatus WHERE s.showtime.id = :showtimeId AND s.seatIdentifier IN :seatIdentifiers AND s.status = :expectedStatus")
-    int updateSeatStatusIfExpected(
-            @Param("showtimeId") Long showtimeId,
-            @Param("seatIdentifiers") Set<String> seatIdentifiers,
-            @Param("newStatus") SeatStatus newStatus,
-            @Param("expectedStatus") SeatStatus expectedStatus
-    );
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from Seat s where s.id in :ids")
+    List<Seat> lockSeatsForUpdate(@Param("ids") List<Long> ids);
+
+    List<Seat> findByShowtimeIdAndSeatIdentifierIn(Long showtimeId, java.util.Set<String> seatIdentifiers);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE Seat s SET s.status = :newStatus WHERE s.showtime.id = :showtimeId AND s.seatIdentifier IN :seatIdentifiers AND s.status = :expectedStatus")
+    int updateSeatStatusIfExpected(@Param("showtimeId") Long showtimeId,
+                                    @Param("seatIdentifiers") java.util.Set<String> seatIdentifiers,
+                                    @Param("newStatus") Seat.SeatStatus newStatus,
+                                    @Param("expectedStatus") Seat.SeatStatus expectedStatus);
 }

@@ -1,20 +1,17 @@
 package com.cineplus.cineplus.domain.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+// using String for state to decouple from entity enum
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class SeatDto {
     private Long id;
-    private String seatNumber; // Ej: "A1", "B5"
-    private Boolean isAvailable; // Podría ser útil
-    private Long theaterId; // Añadir el ID del teatro al que pertenece el asiento
-    private String theaterName; // Nombre del teatro
-    private String seatRow; // Fila del asiento (ej: "A")
-    private Integer seatColumn; // Columna del asiento (ej: 1)
+    private String row;
+    private Integer number;
+    private String label;
+    private String state;
+    private Long heldBy; // optional user id who holds it
 }
