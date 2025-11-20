@@ -1,0 +1,27 @@
+openapi: 3.0.1
+info:
+  title: Cineplus Seats API
+  version: 1.0.0
+paths:
+  /api/showtimes/{showtimeId}/seats:
+    get:
+      summary: Get seats for a showtime
+      parameters:
+        - name: showtimeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /api/showtimes/{showtimeId}/seats/reserve:
+    post:
+      summary: Reserve seats (hold)
+      requestBody:
+        required: true
+      responses:
+        '201':
+          description: Created
+        '409':
+          description: Conflict
