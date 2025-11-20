@@ -22,26 +22,31 @@ public class ShowtimeController {
 
     private final ShowtimeService showtimeService;
 
-    // GET /api/showtimes?cinema={id}&movie={id}
+    // GET /api/showtimes - Endpoint principal para el frontend (nuevo)
+    // Busca showtimes con filtros opcionales: movieId (requerido), cinemaId y date
     @GetMapping
-    public ResponseEntity<List<ShowtimeDto>> getShowtimeDatesOrDetails(
+    public ResponseEntity<List<ShowtimeDto>> getShowtimes(
+            @RequestParam @NotNull Long movieId,
+            @RequestParam(required = false) Long cinemaId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        
+        List<ShowtimeDto> showtimes = showtimeService.findShowtimes(movieId, cinemaId, date);
+        return ResponseEntity.ok(showtimes);
+    }
+
+    // GET /api/showtimes/legacy - Endpoint legacy mantenido por compatibilidad
+    @GetMapping("/legacy")
+    public ResponseEntity<List<ShowtimeDto>> getShowtimeDatesOrDetailsLegacy(
             @RequestParam @NotNull Long cinema,
             @RequestParam @NotNull Long movie,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) FormatType format) {
 
         if (date == null) {
-            // Si no se especifica fecha, se asume que se buscan las fechas disponibles (getAvailableShowtimeDates)
-            // Nota: Este método en el servicio devuelve DTOs forzados.
-            // Considerar un DTO más simple si solo se necesitan las fechas.
             return ResponseEntity.ok(showtimeService.getAvailableShowtimeDates(cinema, movie));
         } else if (format != null) {
-            // Si se especifica fecha y formato, se buscan los horarios específicos
             return ResponseEntity.ok(showtimeService.getMovieShowtimes(cinema, movie, date, format));
         } else {
-            // Si solo se especifica fecha, podríamos devolver todos los formatos para esa fecha,
-            // pero por el momento el servicio requiere un formato.
-            // Se puede extender esta lógica si es necesario en el futuro.
             return ResponseEntity.badRequest().build();
         }
     }

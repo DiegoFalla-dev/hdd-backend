@@ -29,4 +29,16 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
     );
 
     Optional<Showtime> findByIdAndTheaterCinemaId(Long showtimeId, Long cinemaId);
+
+    // Buscar showtimes por movieId con filtros opcionales de cinemaId y date
+    @Query("SELECT s FROM Showtime s " +
+           "WHERE s.movie.id = :movieId " +
+           "AND (:cinemaId IS NULL OR s.theater.cinema.id = :cinemaId) " +
+           "AND (:date IS NULL OR s.date = :date) " +
+           "ORDER BY s.date, s.time")
+    List<Showtime> findShowtimesByFilters(
+            @Param("movieId") Long movieId,
+            @Param("cinemaId") Long cinemaId,
+            @Param("date") LocalDate date
+    );
 }

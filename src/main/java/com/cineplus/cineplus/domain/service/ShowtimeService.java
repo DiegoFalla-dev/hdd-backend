@@ -19,4 +19,7 @@ public interface ShowtimeService {
     void confirmSeatsAsOccupied(Long showtimeId, Set<String> seatIdentifiers); // Confirma asientos
 
     ShowtimeDto saveShowtime (ShowtimeDto showtimeDto);
+    
+    // Nuevo método para el frontend - buscar showtimes con filtros opcionales
+    List<ShowtimeDto> findShowtimes(Long movieId, Long cinemaId, LocalDate date);
 }

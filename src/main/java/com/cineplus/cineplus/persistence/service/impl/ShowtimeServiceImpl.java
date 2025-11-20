@@ -197,4 +197,13 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Showtime savedShowtime = showtimeRepository.save(showtime);
         return showtimeMapper.toDto(savedShowtime);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ShowtimeDto> findShowtimes(Long movieId, Long cinemaId, LocalDate date) {
+        List<Showtime> showtimes = showtimeRepository.findShowtimesByFilters(movieId, cinemaId, date);
+        return showtimes.stream()
+                .map(showtimeMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }
