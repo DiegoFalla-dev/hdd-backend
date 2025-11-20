@@ -1,26 +1,24 @@
 package com.cineplus.cineplus.web.security;
 
-import com.cineplus.cineplus.persistence.service.impl.UserDetailsServiceImpl;
-import com.cineplus.cineplus.web.security.jwt.AuthEntryPointJwt;
-import com.cineplus.cineplus.web.security.jwt.AuthTokenFilter;
-import com.cineplus.cineplus.web.security.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import com.cineplus.cineplus.persistence.service.impl.*;
+import com.cineplus.cineplus.web.security.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * Configuración de Spring Security para el backend de CinePlus
@@ -43,15 +41,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true) // Habilita seguridad a nivel de método
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
-    private final JwtUtils jwtUtils; // Inyecta JwtUtils para construir el filtro
+    private final JwtUtils jwtUtils;
 
-    // AuthTokenFilter debe ser un bean con JwtUtils y UserDetailsServiceImpl inyectados
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter(jwtUtils, userDetailsService);
@@ -82,17 +79,20 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // Permitir GET público para obtener nombre y apellido de usuario por id
-                        .requestMatchers(HttpMethod.GET, "/api/users/*/name").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/test/**").permitAll()
-                        .requestMatchers("/api/movies/**").permitAll()
-                        .requestMatchers("/api/cinemas/**").permitAll()
-                        .requestMatchers("/api/theaters","/api/theaters/**").permitAll()
-                        .requestMatchers("/api/showtimes", "/api/showtimes/**").permitAll()
-                        .requestMatchers("/api/concessions","/api/concessions/**").permitAll()
-                        // .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
+                        // Permitir acceso a la autenticación y registro
+                        .requestMatchers(antMatcher("/api/auth/**")).permitAll()
+                        // Permitir GET (lectura) en endpoints públicos sin autenticación
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/cinemas/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/movies/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/theaters/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/showtimes/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/concessions/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/promotions/**")).permitAll()
+                        // Proteger los endpoints de usuario. Solo usuarios autenticados pueden acceder.
+                        .requestMatchers(antMatcher("/api/users/**")).authenticated()
+                        .requestMatchers(antMatcher("/api/orders/**")).authenticated()
+                        .requestMatchers(antMatcher("/api/payment-methods/**")).authenticated()
+                        // Cualquier otra solicitud requiere autenticación
                         .anyRequest().authenticated()
                 );
 

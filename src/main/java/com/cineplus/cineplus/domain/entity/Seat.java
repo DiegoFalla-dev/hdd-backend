@@ -1,10 +1,7 @@
 package com.cineplus.cineplus.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -27,12 +24,15 @@ public class Seat {
     @JoinColumn(name = "showtime_id", nullable = false)
     private Showtime showtime;
 
-    @Column(nullable = false, length = 5)
+    @Column(nullable = false, length = 10)
     private String seatIdentifier; // e.g., "A1", "B10"
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private SeatStatus status;
+    private SeatStatus status = SeatStatus.AVAILABLE;
+
+    @Version
+    private Long version;
 
     // Campos para manejo de sesiones y coordenadas
     @Column(length = 100)
