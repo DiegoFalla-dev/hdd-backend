@@ -96,9 +96,9 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         List<Seat> seatsToGenerate = new ArrayList<>();
         char rowChar = 'A';
         for (int r = 0; r < theater.getRowCount(); r++) {
-            for (int c = 1; c <= theater.getColCount(); c++) {
-                String seatIdentifier = String.valueOf(rowChar) + c;
-                Seat seat = new Seat(null, showtime, seatIdentifier, SeatStatus.AVAILABLE);
+            for (int c = 0; c < theater.getColCount(); c++) {
+                String seatIdentifier = String.valueOf(rowChar) + (c + 1);
+                Seat seat = new Seat(null, showtime, seatIdentifier, SeatStatus.AVAILABLE, r, c);
                 seatsToGenerate.add(seat);
             }
             rowChar++;

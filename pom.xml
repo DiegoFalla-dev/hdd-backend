@@ -27,14 +27,14 @@
         <url/>
     </scm>
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <!-- Versiones para plugins y librerías que no están en el starter-parent -->
-        <lombok.version>1.18.30</lombok.version> <!-- Actualizada, compatible con Java 21 -->
+        <lombok.version>1.18.30</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <springdoc.version>2.3.0</springdoc.version>
-        <itextpdf.version>5.5.13.3</itextpdf.version> <!-- Esta librería puede ser antigua para Java 21/Jakarta, considerar iText 7 -->
+        <itextpdf.version>5.5.13.3</itextpdf.version>
         <zxing.version>3.5.2</zxing.version>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version> <!-- Compatible con Java 21 -->
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     </properties>
     <dependencies>
         <!-- Spring Boot Starters -->
