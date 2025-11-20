@@ -9,6 +9,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controlador REST para gestionar cines
+ * 
+ * IMPORTANTE: Este endpoint permite solicitudes desde el frontend en:
+ * - http://localhost:5173 (Vite dev server - puerto principal)
+ * - http://localhost:5174 (Vite dev server - puerto alternativo)
+ * 
+ * Si el frontend cambia de puerto o se despliega en producción,
+ * actualizar las URLs en @CrossOrigin y en SecurityConfig.java
+ */
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 @RestController
 @RequestMapping("/api/cinemas")

@@ -12,7 +12,8 @@ public interface ShowtimeService {
     List<ShowtimeDto> getAvailableShowtimeDates(Long cinemaId, Long movieId);
     List<ShowtimeDto> getMovieShowtimes(Long cinemaId, Long movieId, LocalDate date, Showtime.FormatType format);
     Optional<ShowtimeDto> getShowtimeDetails(Long showtimeId, Long cinemaId);
-    void generateSeatsForShowtime(Long showtimeId); // Para inicializar asientos
+    void generateSeatsForShowtime(Long showtimeId); // Para inicializar asientos de un showtime específico
+    int generateSeatsForAllShowtimesWithoutSeats(); // Para generar asientos de todos los showtimes sin asientos
     List<String> getOccupiedSeats(Long showtimeId); // Obtener asientos ocupados para el frontend
     List<String> reserveSeatsTemporarily(Long showtimeId, Set<String> seatIdentifiers); // Retorna los asientos que no se pudieron reservar
     void releaseTemporaryReservedSeats(Long showtimeId, Set<String> seatIdentifiers); // Libera asientos temporales

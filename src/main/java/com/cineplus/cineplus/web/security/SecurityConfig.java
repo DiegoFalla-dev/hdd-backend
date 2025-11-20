@@ -22,6 +22,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Configuración de Spring Security para el backend de CinePlus
+ * 
+ * IMPORTANTE - CONFIGURACIÓN CORS:
+ * Esta clase habilita CORS globalmente usando Customizer.withDefaults()
+ * Las URLs permitidas están definidas en application.properties:
+ * - http://localhost:5173 (Vite dev server - puerto principal)
+ * - http://localhost:5174 (Vite dev server - puerto alternativo)
+ * 
+ * Si el frontend cambia de puerto o se despliega en producción,
+ * actualizar las URLs en:
+ * 1. application.properties (spring.web.cors.allowed-origins)
+ * 2. Todos los @CrossOrigin en los controladores
+ * 
+ * AUTENTICACIÓN JWT:
+ * - Endpoints públicos: /api/auth/**, /api/movies/**, etc.
+ * - Endpoints protegidos: Requieren token JWT válido
+ * - Sesiones: STATELESS (sin cookies, solo JWT en header Authorization)
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true) // Habilita seguridad a nivel de método

@@ -14,6 +14,16 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Controlador REST para gestionar horarios de funciones (showtimes)
+ * 
+ * IMPORTANTE: Este endpoint permite solicitudes desde el frontend en:
+ * - http://localhost:5173 (Vite dev server - puerto principal)
+ * - http://localhost:5174 (Vite dev server - puerto alternativo)
+ * 
+ * Si el frontend cambia de puerto o se despliega en producción,
+ * actualizar las URLs en @CrossOrigin y en SecurityConfig.java
+ */
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 @RestController
 @RequestMapping("/api/showtimes")
@@ -66,6 +76,20 @@ public class ShowtimeController {
     public ResponseEntity<Void> generateSeats(@PathVariable Long id) {
         showtimeService.generateSeatsForShowtime(id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    
+    /**
+     * Endpoint para generar asientos automáticamente para todos los showtimes que no tienen asientos.
+     * Útil para inicializar asientos de funciones creadas antes de implementar la auto-generación.
+     * 
+     * POST /api/showtimes/seats/generate-all
+     * 
+     * @return Cantidad de showtimes a los que se les generaron asientos
+     */
+    @PostMapping("/seats/generate-all")
+    public ResponseEntity<String> generateSeatsForAll() {
+        int generatedCount = showtimeService.generateSeatsForAllShowtimesWithoutSeats();
+        return ResponseEntity.ok("Se generaron asientos para " + generatedCount + " funciones");
     }
 
     // GET /api/showtimes/{id}/seats/occupied

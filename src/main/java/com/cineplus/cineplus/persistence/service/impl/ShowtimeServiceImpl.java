@@ -77,6 +77,25 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     }
 
     // --- Métodos de gestión de asientos ---
+    
+    /**
+     * Genera automáticamente todos los asientos para una función específica.
+     * 
+     * CONFIGURACIÓN DE ASIENTOS:
+     * - 18 filas (A-R)
+     * - Pasillo central entre columnas 14-15
+     * - Filas A-C: 14 asientos izquierda + pasillo + 6 asientos derecha (20 asientos por fila)
+     * - Filas D-R: 14 asientos izquierda + pasillo + 4 asientos derecha (18 asientos por fila)
+     * - Todos los asientos con status AVAILABLE por defecto
+     * 
+     * IMPORTANTE: Este método se llama automáticamente cuando se crea un nuevo showtime
+     * mediante el método saveShowtime(). También puede llamarse manualmente para generar
+     * asientos de showtimes existentes que no tienen asientos.
+     * 
+     * @param showtimeId ID de la función para la cual generar asientos
+     * @throws ResponseStatusException 404 si el showtime no existe
+     * @throws ResponseStatusException 500 si el showtime no tiene sala asociada
+     */
     @Override
     @Transactional
     public void generateSeatsForShowtime(Long showtimeId) {
@@ -94,16 +113,91 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         }
 
         List<Seat> seatsToGenerate = new ArrayList<>();
-        char rowChar = 'A';
-        for (int r = 0; r < theater.getRowCount(); r++) {
-            for (int c = 0; c < theater.getColCount(); c++) {
-                String seatIdentifier = String.valueOf(rowChar) + (c + 1);
-                Seat seat = new Seat(null, showtime, seatIdentifier, SeatStatus.AVAILABLE, r, c);
-                seatsToGenerate.add(seat);
+        
+        // Generar 18 filas (A-R)
+        for (int rowIndex = 0; rowIndex < 18; rowIndex++) {
+            char rowLetter = (char) ('A' + rowIndex);
+            
+            if (rowIndex < 3) {
+                // FILAS A, B, C (filas 0-2)
+                // Configuración: 14 asientos izquierda + pasillo + 6 asientos derecha = 20 asientos
+                seatsToGenerate.addAll(generateRowSeats(showtime, rowLetter, rowIndex, 14, 6));
+            } else {
+                // FILAS D-R (filas 3-17)
+                // Configuración: 14 asientos izquierda + pasillo + 4 asientos derecha = 18 asientos
+                seatsToGenerate.addAll(generateRowSeats(showtime, rowLetter, rowIndex, 14, 4));
             }
-            rowChar++;
         }
+        
         seatRepository.saveAll(seatsToGenerate);
+    }
+    
+    /**
+     * Método helper para generar asientos de una fila con pasillo central.
+     * 
+     * @param showtime Función a la que pertenecen los asientos
+     * @param rowLetter Letra de la fila (A-R)
+     * @param rowIndex Índice de la fila (0-17)
+     * @param leftSeats Cantidad de asientos a la izquierda del pasillo
+     * @param rightSeats Cantidad de asientos a la derecha del pasillo
+     * @return Lista de asientos generados para esta fila
+     */
+    private List<Seat> generateRowSeats(Showtime showtime, char rowLetter, int rowIndex, 
+                                         int leftSeats, int rightSeats) {
+        List<Seat> rowSeats = new ArrayList<>();
+        int seatNumber = 1;
+        
+        // Asientos a la izquierda del pasillo (columnas 0-13)
+        for (int col = 0; col < leftSeats; col++) {
+            String seatIdentifier = String.valueOf(rowLetter) + seatNumber;
+            Seat seat = new Seat(null, showtime, seatIdentifier, SeatStatus.AVAILABLE, rowIndex, col);
+            rowSeats.add(seat);
+            seatNumber++;
+        }
+        
+        // Pasillo central (columnas 14-15 están vacías, no se generan asientos)
+        
+        // Asientos a la derecha del pasillo (columnas 16+)
+        for (int col = 0; col < rightSeats; col++) {
+            String seatIdentifier = String.valueOf(rowLetter) + seatNumber;
+            // La columna real empieza en 16 (después del pasillo)
+            Seat seat = new Seat(null, showtime, seatIdentifier, SeatStatus.AVAILABLE, rowIndex, 16 + col);
+            rowSeats.add(seat);
+            seatNumber++;
+        }
+        
+        return rowSeats;
+    }
+    
+    /**
+     * Genera asientos para todos los showtimes que actualmente no tienen asientos.
+     * Útil para inicializar asientos de showtimes creados antes de implementar la auto-generación.
+     * 
+     * @return Cantidad de showtimes a los que se les generaron asientos
+     */
+    @Override
+    @Transactional
+    public int generateSeatsForAllShowtimesWithoutSeats() {
+        // Obtener todos los showtimes
+        List<Showtime> allShowtimes = showtimeRepository.findAll();
+        int generatedCount = 0;
+        
+        for (Showtime showtime : allShowtimes) {
+            // Verificar si el showtime ya tiene asientos
+            List<Seat> existingSeats = seatRepository.findByShowtimeId(showtime.getId());
+            
+            if (existingSeats.isEmpty()) {
+                try {
+                    generateSeatsForShowtime(showtime.getId());
+                    generatedCount++;
+                } catch (Exception e) {
+                    // Log error pero continuar con los demás showtimes
+                    System.err.println("Error generando asientos para showtime " + showtime.getId() + ": " + e.getMessage());
+                }
+            }
+        }
+        
+        return generatedCount;
     }
 
     @Override
@@ -195,6 +289,15 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         showtime.setAvailableSeats(theater.getTotalSeats());
 
         Showtime savedShowtime = showtimeRepository.save(showtime);
+        
+        // ⭐ AUTO-GENERAR ASIENTOS AUTOMÁTICAMENTE DESPUÉS DE GUARDAR EL SHOWTIME
+        try {
+            generateSeatsForShowtime(savedShowtime.getId());
+        } catch (Exception e) {
+            // Log error pero no fallar la creación del showtime
+            System.err.println("Error auto-generando asientos para showtime " + savedShowtime.getId() + ": " + e.getMessage());
+        }
+        
         return showtimeMapper.toDto(savedShowtime);
     }
 

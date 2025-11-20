@@ -8,6 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controlador REST para gestionar usuarios
+ * 
+ * IMPORTANTE: Este endpoint permite solicitudes desde el frontend en:
+ * - http://localhost:5173 (Vite dev server - puerto principal)
+ * - http://localhost:5174 (Vite dev server - puerto alternativo)
+ * 
+ * Si el frontend cambia de puerto o se despliega en producción,
+ * actualizar las URLs en @CrossOrigin y en SecurityConfig.java
+ */
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
