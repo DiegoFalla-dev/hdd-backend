@@ -44,9 +44,11 @@ public class OrderServiceImpl implements OrderService {
     private final ShowtimeRepository showtimeRepository;
     private final SeatRepository seatRepository;
     private final PromotionRepository promotionRepository; // Se usa para buscar la entidad, no el DTO
+    private final com.cineplus.cineplus.domain.repository.TicketTypeRepository ticketTypeRepository;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final PromotionService promotionService; // Para la validación de la lógica de negocio de promociones
+    private final com.cineplus.cineplus.domain.service.TicketPriceService ticketPriceService;
 
     private static final String QR_CODE_BASE_URL = "http://localhost:8080/api/tickets/"; // URL base para los tickets
 
@@ -99,15 +101,27 @@ public class OrderServiceImpl implements OrderService {
             showtime.setAvailableSeats(showtime.getAvailableSeats() - 1);
             showtimeRepository.save(showtime); // Guarda el cambio en la disponibilidad
 
-            // Crear el OrderItem
+            // Determinar precio oficial del ticket: si se envió ticketType, buscar su precio en el catálogo.
+            java.math.BigDecimal effectivePrice = itemDTO.getPrice();
+            if (itemDTO.getTicketType() != null && !itemDTO.getTicketType().isEmpty()) {
+                com.cineplus.cineplus.domain.entity.TicketType tt = ticketTypeRepository.findByCodeIgnoreCase(itemDTO.getTicketType()).orElse(null);
+                if (tt != null) {
+                    effectivePrice = tt.getPrice();
+                    // Sobre-escribimos el precio enviado por el cliente con el precio oficial
+                } else {
+                    System.out.println("Warning: ticketType not found: " + itemDTO.getTicketType() + ", using provided price");
+                }
+            }
+
+            // Crear el OrderItem con el precio efectivo
             OrderItem orderItem = OrderItem.builder()
                     .showtime(showtime)
                     .seat(seat)
-                    .price(itemDTO.getPrice())
+                    .price(effectivePrice)
                     .ticketStatus(TicketStatus.VALID)
                     .build();
             newOrderItems.add(orderItem);
-            totalAmount = totalAmount.add(itemDTO.getPrice());
+            totalAmount = totalAmount.add(effectivePrice);
         }
 
         Promotion appliedPromotion = null;
@@ -147,6 +161,46 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order savedOrder = orderRepository.save(order);
+
+        // Persistir líneas de precio de tickets agrupando por showtimeId + unitPrice
+        try {
+            // Agrupar items entrantes por showtimeId y price
+            java.util.Map<String, com.cineplus.cineplus.domain.dto.TicketPriceDto> agg = new java.util.HashMap<>();
+            for (CreateOrderItemDTO itemDTO : createOrderDTO.getItems()) {
+                String ttype = itemDTO.getTicketType() == null ? "" : itemDTO.getTicketType();
+                // Determinar precio efectivo (misma lógica que al crear OrderItem)
+                java.math.BigDecimal effectivePrice = itemDTO.getPrice();
+                if (itemDTO.getTicketType() != null && !itemDTO.getTicketType().isEmpty()) {
+                    com.cineplus.cineplus.domain.entity.TicketType tt = ticketTypeRepository.findByCodeIgnoreCase(itemDTO.getTicketType()).orElse(null);
+                    if (tt != null) {
+                        effectivePrice = tt.getPrice();
+                    }
+                }
+                String key = itemDTO.getShowtimeId() + "|" + effectivePrice.toPlainString() + "|" + ttype;
+                com.cineplus.cineplus.domain.dto.TicketPriceDto current = agg.get(key);
+                if (current == null) {
+                    com.cineplus.cineplus.domain.dto.TicketPriceDto dto = com.cineplus.cineplus.domain.dto.TicketPriceDto.builder()
+                            .showtimeId(itemDTO.getShowtimeId())
+                            .unitPrice(effectivePrice)
+                            .quantity(1)
+                            .subtotal(effectivePrice)
+                            .ticketType(ttype == null || ttype.isEmpty() ? null : ttype)
+                            .build();
+                    agg.put(key, dto);
+                } else {
+                    current.setQuantity(current.getQuantity() + 1);
+                    current.setSubtotal(current.getUnitPrice().multiply(java.math.BigDecimal.valueOf(current.getQuantity())));
+                }
+            }
+            java.util.List<com.cineplus.cineplus.domain.dto.TicketPriceDto> toSave = new java.util.ArrayList<>(agg.values());
+            if (!toSave.isEmpty()) {
+                ticketPriceService.saveForOrder(savedOrder.getId(), toSave);
+            }
+        } catch (Exception ex) {
+            // No interrumpir el flujo de creación de la orden por un fallo en el guardado de líneas de precio,
+            // pero logueamos el error para depuración.
+            System.err.println("Error guardando TicketPrice para order " + savedOrder.getId() + ": " + ex.getMessage());
+        }
 
         // Generar QRs y PDFs después de guardar la orden y los items
         for (OrderItem item : savedOrder.getOrderItems()) {

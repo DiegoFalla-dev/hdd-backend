@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -27,4 +28,5 @@ public class ShowtimeDto {
     private int availableSeats;
     private int totalSeats; // Se obtendrá del teatro asociado
     private String seatMatrixType; // e.g., "SMALL", "MEDIUM"
+    private BigDecimal price; // Precio por entrada para la función
 }

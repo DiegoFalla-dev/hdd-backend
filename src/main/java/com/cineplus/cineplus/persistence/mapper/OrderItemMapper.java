@@ -34,5 +34,6 @@ public interface OrderItemMapper {
     @Mapping(target = "ticketStatus", expression = "java(com.cineplus.cineplus.domain.entity.TicketStatus.VALID)") // Estado inicial
     @Mapping(target = "qrCodeTicketUrl", ignore = true) // Se generará en el servicio
     @Mapping(target = "ticketPdfUrl", ignore = true) // Se generará en el servicio
+    @Mapping(target = "price", source = "createOrderItemDTO.price")
     OrderItem toEntity(CreateOrderItemDTO createOrderItemDTO, Order order, Showtime showtime, Seat seat);
 }

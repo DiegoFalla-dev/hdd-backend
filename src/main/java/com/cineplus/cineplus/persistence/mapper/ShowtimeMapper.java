@@ -19,6 +19,7 @@ public interface ShowtimeMapper {
     @Mapping(source = "theater.cinema.id", target = "cinemaId")
     @Mapping(source = "theater.cinema.name", target = "cinemaName")
     @Mapping(source = "theater.totalSeats", target = "totalSeats")
+    @Mapping(source = "price", target = "price")
     @Mapping(source = "theater.seatMatrixType", target = "seatMatrixType", qualifiedByName = "mapSeatMatrixTypeToString")
     ShowtimeDto toDto(Showtime showtime);
 

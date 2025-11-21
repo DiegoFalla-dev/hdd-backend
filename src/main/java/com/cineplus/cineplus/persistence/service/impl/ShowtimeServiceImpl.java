@@ -131,20 +131,35 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Showtime showtime = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Showtime not found."));
 
+        // Normalizar identificadores (trim + uppercase) para evitar mismatches por formato
+        java.util.Set<String> normalized = seatIdentifiers.stream()
+            .filter(s -> s != null)
+            .map(s -> s.trim().toUpperCase())
+            .collect(java.util.stream.Collectors.toSet());
+
         // Intentar actualizar el estado de los asientos de AVAILABLE a TEMPORARILY_RESERVED
-        int updatedCount = seatRepository.updateSeatStatusIfExpected(showtimeId, seatIdentifiers, SeatStatus.TEMPORARILY_RESERVED, SeatStatus.AVAILABLE);
+        int updatedCount = seatRepository.updateSeatStatusIfExpected(showtimeId, normalized, SeatStatus.TEMPORARILY_RESERVED, SeatStatus.AVAILABLE);
 
         if (updatedCount != seatIdentifiers.size()) {
             // Si no se actualizaron todos, significa que algunos ya no estaban AVAILABLE
-            List<Seat> currentSeats = seatRepository.findByShowtimeIdAndSeatIdentifierIn(showtimeId, seatIdentifiers);
+                List<Seat> currentSeats = seatRepository.findByShowtimeIdAndSeatIdentifierIn(showtimeId, normalized);
             Set<String> successfullyReserved = currentSeats.stream()
                     .filter(seat -> seat.getStatus().equals(SeatStatus.TEMPORARILY_RESERVED))
                     .map(Seat::getSeatIdentifier)
                     .collect(Collectors.toSet());
 
-            Set<String> failedToReserve = seatIdentifiers.stream()
+                // Determine which of the normalized identifiers failed
+                Set<String> failedToReserve = normalized.stream()
                     .filter(id -> !successfullyReserved.contains(id))
                     .collect(Collectors.toSet());
+
+                // Log current seats and statuses to help debugging
+                try {
+                System.out.println("reserveSeatsTemporarily: showtimeId=" + showtimeId + " requested=" + seatIdentifiers + " normalized=" + normalized + " updatedCount=" + updatedCount + " failed=" + failedToReserve);
+                currentSeats.forEach(s -> System.out.println(" seat=" + s.getSeatIdentifier() + " status=" + s.getStatus()));
+                } catch (Exception ex) {
+                // avoid breaking flow on logging
+                }
 
             // Devolver los que fallaron
             return new ArrayList<>(failedToReserve);
