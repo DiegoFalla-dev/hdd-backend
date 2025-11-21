@@ -10,6 +10,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 @Configuration
 public class CorsConfig {
@@ -70,4 +73,11 @@ public class CorsConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
         }
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public CorsFilter corsFilterBean(CorsConfigurationSource source) {
+        // Ensure CORS headers are added as early as possible
+        return new CorsFilter(source);
+    }
 }
