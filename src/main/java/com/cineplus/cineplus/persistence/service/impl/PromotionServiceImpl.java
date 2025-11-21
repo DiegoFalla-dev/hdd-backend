@@ -114,18 +114,4 @@ public class PromotionServiceImpl implements PromotionService {
 
         return true; // La promoción es válida y aplicable
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public BigDecimal calculateDiscountedTotal(String promotionCode, BigDecimal baseAmount) {
-        if (!isValidPromotionForAmount(promotionCode, baseAmount)) return baseAmount;
-        Promotion promotion = promotionRepository.findByCode(promotionCode).orElse(null);
-        if (promotion == null) return baseAmount;
-        if (promotion.getDiscountType() == com.cineplus.cineplus.domain.entity.DiscountType.PERCENTAGE) {
-            return baseAmount.subtract(baseAmount.multiply(promotion.getValue()));
-        } else if (promotion.getDiscountType() == com.cineplus.cineplus.domain.entity.DiscountType.FIXED_AMOUNT) {
-            return baseAmount.subtract(promotion.getValue()).max(BigDecimal.ZERO);
-        }
-        return baseAmount;
-    }
 }

@@ -184,42 +184,6 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toDto(savedOrder);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public OrderDTO previewOrder(CreateOrderDTO createOrderDTO) {
-        // Reutiliza lógica parcial de createOrder sin persistir entidades ni modificar disponibilidad.
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        for (CreateOrderItemDTO itemDTO : createOrderDTO.getItems()) {
-            totalAmount = totalAmount.add(itemDTO.getPrice());
-        }
-        Promotion appliedPromotion = null;
-        if (createOrderDTO.getPromotionCode() != null && !createOrderDTO.getPromotionCode().isBlank()) {
-            Optional<Promotion> promoEntityOpt = promotionRepository.findByCode(createOrderDTO.getPromotionCode());
-            if (promoEntityOpt.isPresent() && promotionService.isValidPromotionForAmount(createOrderDTO.getPromotionCode(), totalAmount)) {
-                appliedPromotion = promoEntityOpt.get();
-                totalAmount = applyPromotionDiscount(totalAmount, appliedPromotion);
-            }
-        }
-        OrderDTO dto = new OrderDTO();
-        dto.setTotalAmount(totalAmount);
-        dto.setPromotionCode(appliedPromotion != null ? appliedPromotion.getCode() : null);
-        dto.setOrderStatus(OrderStatus.PENDING);
-        return dto;
-    }
-
-    @Override
-    @Transactional
-    public Optional<OrderDTO> cancelOrder(Long id) {
-        return orderRepository.findById(id).map(order -> {
-            if (order.getOrderStatus() == OrderStatus.COMPLETED || order.getOrderStatus() == OrderStatus.CANCELLED) {
-                // No cancelar si ya está completada o cancelada
-                return orderMapper.toDto(order);
-            }
-            order.setOrderStatus(OrderStatus.CANCELLED);
-            return orderMapper.toDto(orderRepository.save(order));
-        });
-    }
-
     private BigDecimal applyPromotionDiscount(BigDecimal totalAmount, Promotion promotion) {
         if (promotion.getDiscountType() == DiscountType.PERCENTAGE) {
             // Ejemplo: 10% de descuento -> 0.10

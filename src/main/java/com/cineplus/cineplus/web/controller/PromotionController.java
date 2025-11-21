@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import java.math.BigDecimal;
 
 import java.util.List;
 
@@ -66,12 +65,5 @@ public class PromotionController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    // Validar y calcular total con promoción para preview de carrito
-    @PostMapping("/validate")
-    public ResponseEntity<BigDecimal> validatePromotion(@RequestParam String code, @RequestParam BigDecimal baseAmount) {
-        BigDecimal discounted = promotionService.calculateDiscountedTotal(code, baseAmount);
-        return ResponseEntity.ok(discounted);
     }
 }

@@ -26,7 +26,4 @@ public class OrderDTO {
     private String qrCodeUrl;
     private List<OrderItemDTO> orderItems;
     private PromotionDTO promotion; // Si aplica un descuento a la orden
-
-    // Campo auxiliar para preview (código de promoción aplicado, sin necesidad de DTO completo)
-    private String promotionCode;
 }

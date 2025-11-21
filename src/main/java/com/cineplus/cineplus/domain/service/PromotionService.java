@@ -29,9 +29,4 @@ public interface PromotionService {
      * @return true si la promoción es aplicable, false en caso contrario.
      */
     boolean isValidPromotionForAmount(String promotionCode, BigDecimal totalAmount); // Necesita BigDecimal
-
-    /**
-     * Calcula el descuento aplicable dado un código y monto base, retornando el total resultante.
-     */
-    BigDecimal calculateDiscountedTotal(String promotionCode, BigDecimal baseAmount);
 }

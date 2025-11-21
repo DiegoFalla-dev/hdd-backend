@@ -66,21 +66,6 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/preview")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<OrderDTO> previewOrder(@Valid @RequestBody CreateOrderDTO createOrderDTO) {
-        OrderDTO preview = orderService.previewOrder(createOrderDTO);
-        return ResponseEntity.ok(preview);
-    }
-
-    @PatchMapping("/{id}/cancel")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<OrderDTO> cancelOrder(@PathVariable Long id) {
-        return orderService.cancelOrder(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')") // Solo administradores pueden cambiar el estado de una orden
     public ResponseEntity<OrderDTO> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus newStatus) {

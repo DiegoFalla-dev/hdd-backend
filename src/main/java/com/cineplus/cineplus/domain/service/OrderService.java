@@ -22,16 +22,6 @@ public interface OrderService {
     OrderDTO createOrder(CreateOrderDTO createOrderDTO);
 
     /**
-     * Calcula una orden simulada sin persistir en base de datos (preview) para mostrar totales preliminares.
-     */
-    OrderDTO previewOrder(CreateOrderDTO createOrderDTO);
-
-    /**
-     * Cancela una orden existente si su estado permite transición a CANCELLED.
-     */
-    Optional<OrderDTO> cancelOrder(Long id);
-
-    /**
      * Actualiza el estado de una orden.
      * @param id El ID de la orden a actualizar.
      * @param newStatus El nuevo estado de la orden.
