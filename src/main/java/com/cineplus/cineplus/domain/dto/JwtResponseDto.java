@@ -18,6 +18,7 @@ public class JwtResponseDto {
     private String email;
     private List<String> roles;
     private String type = "Bearer";
+    private String favoriteCinema;
 
     // Constructor personalizado que usa el valor por defecto de 'type'
     public JwtResponseDto(String token, Long id, String username, String email, List<String> roles) {
@@ -27,5 +28,15 @@ public class JwtResponseDto {
         this.email = email;
         this.roles = roles;
         this.type = "Bearer"; // Se inicializa aquí
+    }
+
+    public JwtResponseDto(String token, Long id, String username, String email, List<String> roles, String favoriteCinema) {
+        this.token = token;
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.roles = roles;
+        this.type = "Bearer";
+        this.favoriteCinema = favoriteCinema;
     }
 }

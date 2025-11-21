@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
+    private final com.cineplus.cineplus.web.security.SessionActivityService sessionActivityService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -119,6 +120,7 @@ public class AuthServiceImpl implements AuthService {
             });
         }
         user.setRoles(roles);
+        user.setFavoriteCinema(registerRequest.getFavoriteCinema());
         userRepository.save(user);
     }
 
@@ -138,12 +140,21 @@ public class AuthServiceImpl implements AuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
+        // register last-activity for this user (start session)
+        try {
+            sessionActivityService.touch(userDetails.getUsername());
+        } catch (Exception ignored) {}
+
+        // Fetch user entity to include favoriteCinema in the response
+        User userEntity = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
+        String fav = userEntity != null ? userEntity.getFavoriteCinema() : null;
+
         return new JwtResponseDto(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles,
-                "Bearer");
+            userDetails.getId(),
+            userDetails.getUsername(),
+            userDetails.getEmail(),
+            roles,
+            fav);
     }
 
     @Override
@@ -165,6 +176,8 @@ public class AuthServiceImpl implements AuthService {
         UserDetailsImpl principal = UserDetailsImpl.build(user);
         String newAccessToken = jwtUtils.generateTokenFromUsername(principal.getUsername());
         List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(java.util.stream.Collectors.toList());
-        return new JwtResponseDto(newAccessToken, principal.getId(), principal.getUsername(), principal.getEmail(), roles, "Bearer");
+        User userEntity = userRepository.findByUsername(principal.getUsername()).orElse(null);
+        String fav = userEntity != null ? userEntity.getFavoriteCinema() : null;
+        return new JwtResponseDto(newAccessToken, principal.getId(), principal.getUsername(), principal.getEmail(), roles, fav);
     }
 }

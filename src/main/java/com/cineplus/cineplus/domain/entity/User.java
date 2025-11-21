@@ -43,6 +43,9 @@ public class User {
     @Column(length = 255)
     private String avatar;
 
+    @Column(length = 255)
+    private String favoriteCinema;
+
     // Encrypted private fields
     @Column(name = "phone_encrypted", length = 1024)
     private String phoneEncrypted; // celular (encrypted)

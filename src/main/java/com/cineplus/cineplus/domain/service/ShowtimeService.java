@@ -18,5 +18,7 @@ public interface ShowtimeService {
     void releaseTemporaryReservedSeats(Long showtimeId, Set<String> seatIdentifiers); // Libera asientos temporales
     void confirmSeatsAsOccupied(Long showtimeId, Set<String> seatIdentifiers); // Confirma asientos
 
+        // Obtener todas las funciones de una fecha (todos los formatos) — útil para listar formatos disponibles
+        List<ShowtimeDto> getShowtimesByDate(Long cinemaId, Long movieId, LocalDate date);
     ShowtimeDto saveShowtime (ShowtimeDto showtimeDto);
 }

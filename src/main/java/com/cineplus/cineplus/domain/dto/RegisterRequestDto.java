@@ -37,4 +37,5 @@ public class RegisterRequestDto {
 
     private String avatar;
     private Set<String> roles;
+    private String favoriteCinema;
 }

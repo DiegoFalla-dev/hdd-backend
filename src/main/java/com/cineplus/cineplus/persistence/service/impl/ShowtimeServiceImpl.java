@@ -71,6 +71,16 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ShowtimeDto> getShowtimesByDate(Long cinemaId, Long movieId, LocalDate date) {
+        // Devuelve todas las funciones del día (todos los formatos) para que el frontend pueda extraer formatos y horarios
+        return showtimeRepository.findByTheaterCinemaIdAndMovieIdAndDate(cinemaId, movieId, date)
+                .stream()
+                .map(showtimeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<ShowtimeDto> getShowtimeDetails(Long showtimeId, Long cinemaId) {
         return showtimeRepository.findByIdAndTheaterCinemaId(showtimeId, cinemaId)
                 .map(showtimeMapper::toDto);

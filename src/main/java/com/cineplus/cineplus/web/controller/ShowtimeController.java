@@ -39,10 +39,9 @@ public class ShowtimeController {
             // Si se especifica fecha y formato, se buscan los horarios específicos
             return ResponseEntity.ok(showtimeService.getMovieShowtimes(cinema, movie, date, format));
         } else {
-            // Si solo se especifica fecha, podríamos devolver todos los formatos para esa fecha,
-            // pero por el momento el servicio requiere un formato.
-            // Se puede extender esta lógica si es necesario en el futuro.
-            return ResponseEntity.badRequest().build();
+            // Si se especifica fecha pero no formato, devolver todas las funciones del día (todos los formatos)
+            // para que el frontend pueda extraer los formatos disponibles y los horarios.
+            return ResponseEntity.ok(showtimeService.getShowtimesByDate(cinema, movie, date));
         }
     }
 

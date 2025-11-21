@@ -72,9 +72,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/theaters","/api/theaters/**").permitAll()
                         .requestMatchers("/api/showtimes", "/api/showtimes/**").permitAll()
                         .requestMatchers("/api/concessions","/api/concessions/**").permitAll()
-                        // .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // .requestMatchers("/api/manager/**").hasAnyRole("ADMIN", "MANAGER")
-                        .anyRequest().authenticated()
+                    // Allow all requests publicly by default
+                    // This removes authorization requirement for purchases and other actions
+                    .anyRequest().permitAll()
                 );
 
         http.authenticationProvider(authenticationProvider());
