@@ -16,22 +16,35 @@ public class CorsConfig {
     @Value("${FRONTEND_ORIGIN:http://localhost:5173}")
     private String frontendOrigin;
 
+    // Temporary emergency flag to allow all origins (for quick testing). Set to true only for debugging.
+    @Value("${ALLOW_ALL_CORS:false}")
+    private boolean allowAllCors;
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 // Allow multiple origins separated by comma in FRONTEND_ORIGIN
-            String[] origins = Arrays.stream(frontendOrigin.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toArray(String[]::new);
+            // If emergency flag is set, allow all origins (use origin patterns to work with credentials)
+            if (allowAllCors || "*".equals(frontendOrigin.trim())) {
+                registry.addMapping("/**")
+                    .allowedOriginPatterns("*")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    .allowCredentials(true);
+            } else {
+                String[] origins = Arrays.stream(frontendOrigin.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .toArray(String[]::new);
 
-            registry.addMapping("/**") // Aplica a todos los endpoints
-                .allowedOrigins(origins)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+                registry.addMapping("/**") // Aplica a todos los endpoints
+                    .allowedOrigins(origins)
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    .allowCredentials(true);
+            }
             }
         };
     }
@@ -43,7 +56,12 @@ public class CorsConfig {
             .map(String::trim)
             .filter(s -> !s.isEmpty())
             .toList();
-        configuration.setAllowedOrigins(origins);
+
+        if (allowAllCors || "*".equals(frontendOrigin.trim())) {
+            configuration.setAllowedOriginPatterns(List.of("*"));
+        } else {
+            configuration.setAllowedOrigins(origins);
+        }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
