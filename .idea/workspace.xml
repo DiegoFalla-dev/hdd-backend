@@ -5,8 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6693db5a-bbc3-498e-b875-37a2526daa73" name="Changes" comment="hotfix-login&amp;register-funcional">
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/db/config/DataSourceConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/db/dialect/SQLiteDialect.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,6 +96,7 @@
       <recent name="C:\Users\df10x\OneDrive\Documentos\IntelliJ\hdd-backend\src\main\java\com\cineplus\cineplus\domain\service" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\df10x\OneDrive\Documentos\IntelliJ\hdd-backend\src\main\resources" />
       <recent name="C:\Users\df10x\OneDrive\Documentos\GitHub\hdd-backend" />
       <recent name="C:\Users\df10x\OneDrive\Documentos\GitHub\hdd-backend\src\main\java\com\cineplus\cineplus" />
     </key>
@@ -197,5 +201,13 @@
     <SUITE FILE_PATH="coverage/hdd_backend$ECommerceCineplusBackendApplication.ic" NAME="ECommerceCineplusBackendApplication Coverage Results" MODIFIED="1761219262072" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
       <FILTER>com.cineplus.cineplus.*</FILTER>
     </SUITE>
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>
