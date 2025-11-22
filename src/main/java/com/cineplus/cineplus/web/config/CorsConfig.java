@@ -16,7 +16,7 @@ import org.springframework.core.annotation.Order;
 
 @Configuration
 public class CorsConfig {
-    @Value("${FRONTEND_ORIGIN:http://localhost:5173}")
+    @Value("${FRONTEND_ORIGIN:http://localhost:5173,https://hdd-frontend.onrender.com}")
     private String frontendOrigin;
 
     // Temporary emergency flag to allow all origins (for quick testing). Set to true only for debugging.
