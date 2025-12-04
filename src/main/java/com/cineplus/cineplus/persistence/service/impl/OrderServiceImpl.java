@@ -2,6 +2,7 @@ package com.cineplus.cineplus.persistence.service.impl;
 
 import com.cineplus.cineplus.domain.dto.CreateOrderDTO;
 import com.cineplus.cineplus.domain.dto.CreateOrderItemDTO;
+import com.cineplus.cineplus.domain.dto.CreateOrderConcessionDTO;
 import com.cineplus.cineplus.domain.dto.OrderDTO;
 import com.cineplus.cineplus.domain.entity.*;
 import com.cineplus.cineplus.domain.repository.*;
@@ -39,12 +40,14 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final OrderConcessionRepository orderConcessionRepository;
+    private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final ShowtimeRepository showtimeRepository;
     private final SeatRepository seatRepository;
     private final PromotionRepository promotionRepository; // Se usa para buscar la entidad, no el DTO
-    private final com.cineplus.cineplus.domain.repository.TicketTypeRepository ticketTypeRepository;
+    private final TicketTypeRepository ticketTypeRepository;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final PromotionService promotionService; // Para la validación de la lógica de negocio de promociones
@@ -102,9 +105,9 @@ public class OrderServiceImpl implements OrderService {
             showtimeRepository.save(showtime); // Guarda el cambio en la disponibilidad
 
             // Determinar precio oficial del ticket: si se envió ticketType, buscar su precio en el catálogo.
-            java.math.BigDecimal effectivePrice = itemDTO.getPrice();
+            BigDecimal effectivePrice = itemDTO.getPrice();
             if (itemDTO.getTicketType() != null && !itemDTO.getTicketType().isEmpty()) {
-                com.cineplus.cineplus.domain.entity.TicketType tt = ticketTypeRepository.findByCodeIgnoreCase(itemDTO.getTicketType()).orElse(null);
+                TicketType tt = ticketTypeRepository.findByCodeIgnoreCase(itemDTO.getTicketType()).orElse(null);
                 if (tt != null) {
                     effectivePrice = tt.getPrice();
                     // Sobre-escribimos el precio enviado por el cliente con el precio oficial
@@ -122,6 +125,26 @@ public class OrderServiceImpl implements OrderService {
                     .build();
             newOrderItems.add(orderItem);
             totalAmount = totalAmount.add(effectivePrice);
+        }
+
+        // Procesar concesiones (dulcería) si existen
+        List<OrderConcession> newOrderConcessions = new ArrayList<>();
+        if (createOrderDTO.getConcessions() != null && !createOrderDTO.getConcessions().isEmpty()) {
+            for (CreateOrderConcessionDTO concessionDTO : createOrderDTO.getConcessions()) {
+                Product product = productRepository.findById(concessionDTO.getProductId())
+                        .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + concessionDTO.getProductId()));
+                
+                BigDecimal totalPrice = concessionDTO.getUnitPrice().multiply(BigDecimal.valueOf(concessionDTO.getQuantity()));
+                
+                OrderConcession orderConcession = OrderConcession.builder()
+                        .product(product)
+                        .quantity(concessionDTO.getQuantity())
+                        .unitPrice(concessionDTO.getUnitPrice())
+                        .totalPrice(totalPrice)
+                        .build();
+                newOrderConcessions.add(orderConcession);
+                totalAmount = totalAmount.add(totalPrice);
+            }
         }
 
         Promotion appliedPromotion = null;
@@ -160,6 +183,12 @@ public class OrderServiceImpl implements OrderService {
             item.setOrder(order);
         }
 
+        // Asignar la orden a cada concesión
+        order.setOrderConcessions(newOrderConcessions);
+        for (OrderConcession concession : newOrderConcessions) {
+            concession.setOrder(order);
+        }
+
         Order savedOrder = orderRepository.save(order);
 
         // Persistir líneas de precio de tickets agrupando por showtimeId + unitPrice
@@ -169,9 +198,9 @@ public class OrderServiceImpl implements OrderService {
             for (CreateOrderItemDTO itemDTO : createOrderDTO.getItems()) {
                 String ttype = itemDTO.getTicketType() == null ? "" : itemDTO.getTicketType();
                 // Determinar precio efectivo (misma lógica que al crear OrderItem)
-                java.math.BigDecimal effectivePrice = itemDTO.getPrice();
+                BigDecimal effectivePrice = itemDTO.getPrice();
                 if (itemDTO.getTicketType() != null && !itemDTO.getTicketType().isEmpty()) {
-                    com.cineplus.cineplus.domain.entity.TicketType tt = ticketTypeRepository.findByCodeIgnoreCase(itemDTO.getTicketType()).orElse(null);
+                    TicketType tt = ticketTypeRepository.findByCodeIgnoreCase(itemDTO.getTicketType()).orElse(null);
                     if (tt != null) {
                         effectivePrice = tt.getPrice();
                     }
@@ -189,10 +218,10 @@ public class OrderServiceImpl implements OrderService {
                     agg.put(key, dto);
                 } else {
                     current.setQuantity(current.getQuantity() + 1);
-                    current.setSubtotal(current.getUnitPrice().multiply(java.math.BigDecimal.valueOf(current.getQuantity())));
+                    current.setSubtotal(current.getUnitPrice().multiply(BigDecimal.valueOf(current.getQuantity())));
                 }
             }
-            java.util.List<com.cineplus.cineplus.domain.dto.TicketPriceDto> toSave = new java.util.ArrayList<>(agg.values());
+            List<com.cineplus.cineplus.domain.dto.TicketPriceDto> toSave = new ArrayList<>(agg.values());
             if (!toSave.isEmpty()) {
                 ticketPriceService.saveForOrder(savedOrder.getId(), toSave);
             }

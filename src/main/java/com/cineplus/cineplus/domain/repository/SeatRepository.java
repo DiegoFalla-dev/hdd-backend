@@ -16,6 +16,8 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     List<Seat> findByShowtimeId(Long showtimeId);
     List<Seat> findByShowtimeIdAndSeatIdentifierIn(Long showtimeId, Set<String> seatIdentifiers);
 
+    void deleteByShowtimeId(Long showtimeId);
+
     @Modifying
     @Query("UPDATE Seat s SET s.status = :newStatus WHERE s.showtime.id = :showtimeId AND s.seatIdentifier IN :seatIdentifiers AND s.status = :expectedStatus")
     int updateSeatStatusIfExpected(

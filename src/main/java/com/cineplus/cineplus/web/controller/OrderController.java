@@ -54,15 +54,23 @@ public class OrderController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')") // Solo usuarios autenticados pueden crear órdenes
-    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody CreateOrderDTO createOrderDTO) {
+    @PreAuthorize("isAuthenticated()") // Cualquier usuario autenticado pueden crear órdenes
+    public ResponseEntity<?> createOrder(@Valid @RequestBody CreateOrderDTO createOrderDTO) {
         try {
             OrderDTO createdOrder = orderService.createOrder(createOrderDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
-        } catch (EntityNotFoundException | IllegalStateException e) {
-            return ResponseEntity.badRequest().body(null); // Podrías devolver un mensaje de error más específico
+        } catch (EntityNotFoundException e) {
+            System.err.println("EntityNotFoundException en createOrder: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            System.err.println("IllegalStateException en createOrder: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            System.err.println("Exception en createOrder: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of("error", "Error interno del servidor: " + e.getMessage()));
         }
     }
 

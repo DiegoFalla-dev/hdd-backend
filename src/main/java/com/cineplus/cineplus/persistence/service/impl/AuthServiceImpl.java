@@ -175,7 +175,7 @@ public class AuthServiceImpl implements AuthService {
         // Create authentication principal manually (lightweight) to reuse generation logic
         UserDetailsImpl principal = UserDetailsImpl.build(user);
         String newAccessToken = jwtUtils.generateTokenFromUsername(principal.getUsername());
-        List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(java.util.stream.Collectors.toList());
+        List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         User userEntity = userRepository.findByUsername(principal.getUsername()).orElse(null);
         String fav = userEntity != null ? userEntity.getFavoriteCinema() : null;
         return new JwtResponseDto(newAccessToken, principal.getId(), principal.getUsername(), principal.getEmail(), roles, fav);

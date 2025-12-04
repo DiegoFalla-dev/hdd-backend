@@ -27,5 +27,8 @@ public class CreateOrderDTO {
     @Valid // Para validar cada item de la lista
     private List<CreateOrderItemDTO> items;
 
+    @Valid
+    private List<CreateOrderConcessionDTO> concessions; // Opcional: concesiones/dulcería
+
     private String promotionCode; // Opcional: para aplicar un código de promoción
 }
