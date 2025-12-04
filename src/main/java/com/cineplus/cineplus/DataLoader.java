@@ -41,11 +41,11 @@ public class DataLoader implements CommandLineRunner {
             if (ticketTypeRepository.count() == 0) {
                 ticketTypeRepository.saveAll(java.util.List.of(
                         TicketType.builder().code("PROMO_ONLINE").name("PROMO ONLINE").price(BigDecimal.valueOf(14.96)).active(true).build(),
-                        TicketType.builder().code("DISABLED").name("PERSONA CON DISCAPACIDAD").price(BigDecimal.valueOf(17.70)).active(true).build(),
-                        TicketType.builder().code("WHEELCHAIR").name("SILLA DE RUEDAS").price(BigDecimal.valueOf(17.70)).active(true).build(),
-                        TicketType.builder().code("CHILD").name("NIÑO").price(BigDecimal.valueOf(21.60)).active(true).build(),
-                        TicketType.builder().code("ADULT").name("ADULTO").price(BigDecimal.valueOf(23.60)).active(true).build(),
-                        TicketType.builder().code("CONV_RIPLEY").name("50% DCTO BANCO RIPLEY").price(BigDecimal.valueOf(12.80)).active(true).build()
+                        TicketType.builder().code("PERSONA_CON_DISCAPACIDAD").name("PERSONA CON DISCAPACIDAD").price(BigDecimal.valueOf(17.70)).active(true).build(),
+                        TicketType.builder().code("SILLA_DE_RUEDAS").name("SILLA DE RUEDAS").price(BigDecimal.valueOf(17.70)).active(true).build(),
+                        TicketType.builder().code("NINO").name("NIÑO").price(BigDecimal.valueOf(21.60)).active(true).build(),
+                        TicketType.builder().code("ADULTO").name("ADULTO").price(BigDecimal.valueOf(23.60)).active(true).build(),
+                        TicketType.builder().code("50_DCTO_BANCO_RIPLEY").name("50% DCTO BANCO RIPLEY").price(BigDecimal.valueOf(12.80)).active(true).build()
                 ));
             }
         } catch (Exception ex) {

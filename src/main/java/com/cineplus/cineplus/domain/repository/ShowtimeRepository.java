@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
     List<Showtime> findByTheaterCinemaIdAndMovieIdAndDate(Long cinemaId, Long movieId, LocalDate date);
 
+    List<Showtime> findByTheaterCinemaId(Long cinemaId);
+
     @Query("SELECT DISTINCT s.date FROM Showtime s WHERE s.theater.cinema.id = :cinemaId AND s.movie.id = :movieId AND s.date >= :currentDate ORDER BY s.date")
     List<LocalDate> findDistinctDatesByCinemaIdAndMovieIdAfter(@Param("cinemaId") Long cinemaId, @Param("movieId") Long movieId, @Param("currentDate") LocalDate currentDate);
 

@@ -72,4 +72,28 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         target.setIsDefault(true);
         return paymentMethodRepository.save(target);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaymentMethod getPaymentMethod(Long userId, Long paymentMethodId) {
+        PaymentMethod pm = paymentMethodRepository.findById(paymentMethodId)
+                .orElse(null);
+        if (pm != null && !pm.getUser().getId().equals(userId)) {
+            return null;
+        }
+        return pm;
+    }
+
+    @Override
+    @Transactional
+    public PaymentMethod updatePaymentMethod(PaymentMethod paymentMethod) {
+        // Encrypt sensitive fields before saving
+        if (paymentMethod.getCciEncrypted() != null && !paymentMethod.getCciEncrypted().isEmpty()) {
+            paymentMethod.setCciEncrypted(com.cineplus.cineplus.persistence.util.Encryptor.encrypt(paymentMethod.getCciEncrypted()));
+        }
+        if (paymentMethod.getVerificationCodeEncrypted() != null && !paymentMethod.getVerificationCodeEncrypted().isEmpty()) {
+            paymentMethod.setVerificationCodeEncrypted(com.cineplus.cineplus.persistence.util.Encryptor.encrypt(paymentMethod.getVerificationCodeEncrypted()));
+        }
+        return paymentMethodRepository.save(paymentMethod);
+    }
 }

@@ -25,5 +25,6 @@ public class OrderDTO {
     private String invoicePdfUrl;
     private String qrCodeUrl;
     private List<OrderItemDTO> orderItems;
+    private List<OrderConcessionDTO> orderConcessions;
     private PromotionDTO promotion; // Si aplica un descuento a la orden
 }

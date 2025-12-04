@@ -39,6 +39,12 @@ public class PaymentMethod {
     @Column(name = "phone_encrypted", length = 1024)
     private String phoneEncrypted; // celular associated with method (encrypted)
 
+    @Column(name = "type", length = 50)
+    private String type; // CARD or YAPE
+
+    @Column(name = "verification_code_encrypted", length = 1024)
+    private String verificationCodeEncrypted; // verification code for YAPE (encrypted)
+
     @Column(name = "is_default")
     private Boolean isDefault = false;
 }

@@ -9,4 +9,6 @@ public interface PaymentMethodService {
     List<PaymentMethod> getPaymentMethodsForUser(Long userId);
     boolean deletePaymentMethod(Long userId, Long paymentMethodId);
     PaymentMethod setDefault(Long userId, Long paymentMethodId);
+    PaymentMethod getPaymentMethod(Long userId, Long paymentMethodId);
+    PaymentMethod updatePaymentMethod(PaymentMethod paymentMethod);
 }

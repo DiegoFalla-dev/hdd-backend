@@ -2,6 +2,7 @@ package com.cineplus.cineplus.persistence.service.impl;
 
 import com.cineplus.cineplus.domain.dto.CreateOrderDTO;
 import com.cineplus.cineplus.domain.dto.CreateOrderItemDTO;
+import com.cineplus.cineplus.domain.dto.CreateOrderConcessionDTO;
 import com.cineplus.cineplus.domain.dto.OrderDTO;
 import com.cineplus.cineplus.domain.entity.*;
 import com.cineplus.cineplus.domain.repository.*;
@@ -39,6 +40,8 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final OrderConcessionRepository orderConcessionRepository;
+    private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final ShowtimeRepository showtimeRepository;
@@ -124,6 +127,26 @@ public class OrderServiceImpl implements OrderService {
             totalAmount = totalAmount.add(effectivePrice);
         }
 
+        // Procesar concesiones (dulcería) si existen
+        List<OrderConcession> newOrderConcessions = new ArrayList<>();
+        if (createOrderDTO.getConcessions() != null && !createOrderDTO.getConcessions().isEmpty()) {
+            for (CreateOrderConcessionDTO concessionDTO : createOrderDTO.getConcessions()) {
+                Product product = productRepository.findById(concessionDTO.getProductId())
+                        .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + concessionDTO.getProductId()));
+                
+                BigDecimal totalPrice = concessionDTO.getUnitPrice().multiply(BigDecimal.valueOf(concessionDTO.getQuantity()));
+                
+                OrderConcession orderConcession = OrderConcession.builder()
+                        .product(product)
+                        .quantity(concessionDTO.getQuantity())
+                        .unitPrice(concessionDTO.getUnitPrice())
+                        .totalPrice(totalPrice)
+                        .build();
+                newOrderConcessions.add(orderConcession);
+                totalAmount = totalAmount.add(totalPrice);
+            }
+        }
+
         Promotion appliedPromotion = null;
         if (createOrderDTO.getPromotionCode() != null && !createOrderDTO.getPromotionCode().isEmpty()) {
             // Verificar si la promoción es válida y aplicable
@@ -158,6 +181,12 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderItems(newOrderItems); // Asigna la lista antes de guardar para cascadear
         for (OrderItem item : newOrderItems) {
             item.setOrder(order);
+        }
+
+        // Asignar la orden a cada concesión
+        order.setOrderConcessions(newOrderConcessions);
+        for (OrderConcession concession : newOrderConcessions) {
+            concession.setOrder(order);
         }
 
         Order savedOrder = orderRepository.save(order);
