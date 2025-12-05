@@ -1,5 +1,6 @@
 package com.cineplus.cineplus.persistence.service.impl;
 
+import com.cineplus.cineplus.domain.dto.SeatDto;
 import com.cineplus.cineplus.domain.dto.ShowtimeDto;
 import com.cineplus.cineplus.domain.entity.Cinema;
 import com.cineplus.cineplus.domain.entity.Movie;
@@ -71,6 +72,16 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ShowtimeDto> getShowtimesByDate(Long cinemaId, Long movieId, LocalDate date) {
+        // Devuelve todas las funciones del día (todos los formatos) para que el frontend pueda extraer formatos y horarios
+        return showtimeRepository.findByTheaterCinemaIdAndMovieIdAndDate(cinemaId, movieId, date)
+                .stream()
+                .map(showtimeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<ShowtimeDto> getShowtimeDetails(Long showtimeId, Long cinemaId) {
         return showtimeRepository.findByIdAndTheaterCinemaId(showtimeId, cinemaId)
                 .map(showtimeMapper::toDto);
@@ -108,6 +119,24 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<SeatDto> getSeatsByShowtime(Long showtimeId) {
+        return seatRepository.findByShowtimeId(showtimeId).stream()
+                .map(seat -> {
+                    String identifier = seat.getSeatIdentifier();
+                    SeatDto dto = new SeatDto();
+                    dto.setId(seat.getId());
+                    dto.setShowtimeId(showtimeId);
+                    dto.setSeatIdentifier(identifier);
+                    dto.setRow(String.valueOf(identifier.charAt(0)));
+                    dto.setNumber(Integer.parseInt(identifier.substring(1)));
+                    dto.setStatus(seat.getStatus().name());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<String> getOccupiedSeats(Long showtimeId) {
         return seatRepository.findByShowtimeId(showtimeId).stream()
                 .filter(seat -> seat.getStatus().equals(SeatStatus.OCCUPIED) || seat.getStatus().equals(SeatStatus.TEMPORARILY_RESERVED))
@@ -121,20 +150,35 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Showtime showtime = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Showtime not found."));
 
+        // Normalizar identificadores (trim + uppercase) para evitar mismatches por formato
+        java.util.Set<String> normalized = seatIdentifiers.stream()
+            .filter(s -> s != null)
+            .map(s -> s.trim().toUpperCase())
+            .collect(java.util.stream.Collectors.toSet());
+
         // Intentar actualizar el estado de los asientos de AVAILABLE a TEMPORARILY_RESERVED
-        int updatedCount = seatRepository.updateSeatStatusIfExpected(showtimeId, seatIdentifiers, SeatStatus.TEMPORARILY_RESERVED, SeatStatus.AVAILABLE);
+        int updatedCount = seatRepository.updateSeatStatusIfExpected(showtimeId, normalized, SeatStatus.TEMPORARILY_RESERVED, SeatStatus.AVAILABLE);
 
         if (updatedCount != seatIdentifiers.size()) {
             // Si no se actualizaron todos, significa que algunos ya no estaban AVAILABLE
-            List<Seat> currentSeats = seatRepository.findByShowtimeIdAndSeatIdentifierIn(showtimeId, seatIdentifiers);
+                List<Seat> currentSeats = seatRepository.findByShowtimeIdAndSeatIdentifierIn(showtimeId, normalized);
             Set<String> successfullyReserved = currentSeats.stream()
                     .filter(seat -> seat.getStatus().equals(SeatStatus.TEMPORARILY_RESERVED))
                     .map(Seat::getSeatIdentifier)
                     .collect(Collectors.toSet());
 
-            Set<String> failedToReserve = seatIdentifiers.stream()
+                // Determine which of the normalized identifiers failed
+                Set<String> failedToReserve = normalized.stream()
                     .filter(id -> !successfullyReserved.contains(id))
                     .collect(Collectors.toSet());
+
+                // Log current seats and statuses to help debugging
+                try {
+                System.out.println("reserveSeatsTemporarily: showtimeId=" + showtimeId + " requested=" + seatIdentifiers + " normalized=" + normalized + " updatedCount=" + updatedCount + " failed=" + failedToReserve);
+                currentSeats.forEach(s -> System.out.println(" seat=" + s.getSeatIdentifier() + " status=" + s.getStatus()));
+                } catch (Exception ex) {
+                // avoid breaking flow on logging
+                }
 
             // Devolver los que fallaron
             return new ArrayList<>(failedToReserve);
@@ -179,6 +223,16 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ShowtimeDto> getShowtimesByCinema(Long cinemaId) {
+        // Devuelve todas las funciones de un cine sin filtrar por película
+        return showtimeRepository.findByTheaterCinemaId(cinemaId)
+                .stream()
+                .map(showtimeMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public ShowtimeDto saveShowtime(ShowtimeDto showtimeDto) {
         // Validar que la película y la sala existan
@@ -196,5 +250,43 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         Showtime savedShowtime = showtimeRepository.save(showtime);
         return showtimeMapper.toDto(savedShowtime);
+    }
+
+    @Override
+    @Transactional
+    public ShowtimeDto updateShowtime(ShowtimeDto showtimeDto) {
+        // Verificar que el showtime existe
+        Showtime existingShowtime = showtimeRepository.findById(showtimeDto.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Showtime not found with id: " + showtimeDto.getId()));
+
+        // Validar que la película y la sala existan
+        Movie movie = movieRepository.findById(showtimeDto.getMovieId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found with id: " + showtimeDto.getMovieId()));
+        Theater theater = theaterRepository.findById(showtimeDto.getTheaterId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Theater not found with id: " + showtimeDto.getTheaterId()));
+
+        // Actualizar campos
+        existingShowtime.setMovie(movie);
+        existingShowtime.setTheater(theater);
+        existingShowtime.setDate(showtimeDto.getDate());
+        existingShowtime.setTime(showtimeDto.getTime());
+        existingShowtime.setFormat(showtimeDto.getFormat());
+        existingShowtime.setPrice(showtimeDto.getPrice());
+
+        Showtime updatedShowtime = showtimeRepository.save(existingShowtime);
+        return showtimeMapper.toDto(updatedShowtime);
+    }
+
+    @Override
+    @Transactional
+    public void deleteShowtime(Long showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Showtime not found with id: " + showtimeId));
+        
+        // Eliminar los asientos asociados primero
+        seatRepository.deleteByShowtimeId(showtimeId);
+        
+        // Eliminar el showtime
+        showtimeRepository.delete(showtime);
     }
 }

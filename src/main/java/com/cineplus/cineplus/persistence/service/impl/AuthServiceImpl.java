@@ -1,8 +1,9 @@
 package com.cineplus.cineplus.persistence.service.impl;
 
-import com.cineplus.cineplus.domain.dto.JwtResponseDto;
+// JwtResponseDto import already present above
 import com.cineplus.cineplus.domain.dto.LoginRequestDto;
 import com.cineplus.cineplus.domain.dto.RegisterRequestDto;
+import com.cineplus.cineplus.domain.dto.JwtResponseDto;
 import com.cineplus.cineplus.domain.entity.Role;
 import com.cineplus.cineplus.domain.entity.Role.RoleName;
 import com.cineplus.cineplus.domain.entity.User;
@@ -10,6 +11,7 @@ import com.cineplus.cineplus.domain.repository.RoleRepository;
 import com.cineplus.cineplus.domain.repository.UserRepository;
 import com.cineplus.cineplus.domain.service.AuthService;
 import com.cineplus.cineplus.web.security.jwt.JwtUtils;
+import com.cineplus.cineplus.persistence.util.Encryptor; // Importa tu clase Encryptor
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
+    private final com.cineplus.cineplus.web.security.SessionActivityService sessionActivityService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -40,41 +43,56 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void registerUser(RegisterRequestDto registerRequest) {
-        // check email
+
+        // Check email uniqueness
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!");
         }
 
-        // derive or validate username
-        String username = registerRequest.getUsername();
-        if (username == null || username.isBlank()) {
-            // derive from email local part
-            username = registerRequest.getEmail().split("@")[0];
+        // Generate username from firstName and lastName
+        // Limpiamos los nombres para asegurar un username válido y legible
+        String baseUsername = (registerRequest.getFirstName() + registerRequest.getLastName())
+                .toLowerCase()
+                .replaceAll("\\s+", "") // Eliminar espacios
+                .replaceAll("[^a-z0-9]", ""); // Eliminar caracteres no alfanuméricos (mantener solo letras y números)
+
+        String finalUsername = baseUsername;
+        int suffix = 0;
+        // Check for username uniqueness and append suffix if necessary
+        while (userRepository.existsByUsername(finalUsername)) {
+            suffix++;
+            finalUsername = baseUsername + suffix;
         }
-        if (userRepository.existsByUsername(username)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Username is already taken!");
+
+        // Validate password confirmation (already done by @NotBlank, but this adds the match check)
+        if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Password and confirm password do not match.");
         }
 
         // Create new user
         User user = new User();
-        user.setUsername(username);
+        user.setUsername(finalUsername); // Set the generated username
         user.setFirstName(registerRequest.getFirstName());
         user.setLastName(registerRequest.getLastName());
         user.setEmail(registerRequest.getEmail());
-    user.setNationalId(registerRequest.getNationalId());
-        user.setBirthDate(registerRequest.getBirthDate());
-        user.setAvatar(registerRequest.getAvatar());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
-        if (registerRequest.getPhone() != null) {
-            user.setPhoneEncrypted(com.cineplus.cineplus.persistence.util.Encryptor.encrypt(registerRequest.getPhone()));
+        // Mapeo de campos opcionales
+        user.setNationalId(registerRequest.getNationalId());
+        user.setBirthDate(registerRequest.getBirthDate());
+        user.setGender(registerRequest.getGender()); // Agregado: mapea el género
+        user.setAvatar(registerRequest.getAvatar());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword())); // Encode password
+
+        // Encrypt phone if provided
+        if (registerRequest.getPhone() != null && !registerRequest.getPhone().isBlank()) {
+            user.setPhoneEncrypted(Encryptor.encrypt(registerRequest.getPhone())); // Usa tu clase Encryptor
         }
 
         Set<String> strRoles = registerRequest.getRoles();
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null || strRoles.isEmpty()) {
-            // Si no se especifican roles, asigna el rol de USER por defecto
+            // If no roles are specified, assign the default USER role
             Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error: Role USER is not found."));
             roles.add(userRole);
@@ -102,12 +120,15 @@ public class AuthServiceImpl implements AuthService {
             });
         }
         user.setRoles(roles);
+        user.setFavoriteCinema(registerRequest.getFavoriteCinema());
         userRepository.save(user);
     }
 
     @Override
     @Transactional
     public JwtResponseDto authenticateUser(LoginRequestDto loginRequest) {
+        // Asegúrate de que LoginRequestDto tenga un campo para usernameOrEmail
+        // y que tu UserDetailsService sepa cómo buscar por ambos.
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 
@@ -119,11 +140,44 @@ public class AuthServiceImpl implements AuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
+        // register last-activity for this user (start session)
+        try {
+            sessionActivityService.touch(userDetails.getUsername());
+        } catch (Exception ignored) {}
+
+        // Fetch user entity to include favoriteCinema in the response
+        User userEntity = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
+        String fav = userEntity != null ? userEntity.getFavoriteCinema() : null;
+
         return new JwtResponseDto(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles,
-                "Bearer");
+            userDetails.getId(),
+            userDetails.getUsername(),
+            userDetails.getEmail(),
+            roles,
+            fav);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public JwtResponseDto refreshToken(String refreshToken) {
+        // Simple implementation: validate structure and re-issue new JWT for the user encoded inside if still valid.
+        // In a robust design you would persist refresh tokens and check revocation/expiry.
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Refresh token missing");
+        }
+        String username = jwtUtils.getUserNameFromJwtToken(refreshToken);
+        if (username == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+        }
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found for refresh token"));
+
+        // Create authentication principal manually (lightweight) to reuse generation logic
+        UserDetailsImpl principal = UserDetailsImpl.build(user);
+        String newAccessToken = jwtUtils.generateTokenFromUsername(principal.getUsername());
+        List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(java.util.stream.Collectors.toList());
+        User userEntity = userRepository.findByUsername(principal.getUsername()).orElse(null);
+        String fav = userEntity != null ? userEntity.getFavoriteCinema() : null;
+        return new JwtResponseDto(newAccessToken, principal.getId(), principal.getUsername(), principal.getEmail(), roles, fav);
     }
 }

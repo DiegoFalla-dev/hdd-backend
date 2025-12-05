@@ -1,5 +1,7 @@
 package com.cineplus.cineplus.domain.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -12,15 +14,28 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterRequestDto {
+
+    @NotBlank(message = "First name must not be blank")
     private String firstName;
+
+    @NotBlank(message = "Last name must not be blank")
     private String lastName;
-    private String username; // optional
+
     private String nationalId; // DNI
+
+    @NotBlank @Email(message = "Email should be valid")
     private String email;
+
     private String birthDate;
-    private String phone; // celular (plain text in DTO, will be encrypted before saving)
+    private String gender;
+    private String phone;
+
+    @NotBlank(message = "Password must not be blank")
     private String password;
+    @NotBlank(message = "Confirm password must not be blank")
     private String confirmPassword;
+
     private String avatar;
-    private Set<String> roles; // role names (e.g. "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_USER")
+    private Set<String> roles;
+    private String favoriteCinema;
 }

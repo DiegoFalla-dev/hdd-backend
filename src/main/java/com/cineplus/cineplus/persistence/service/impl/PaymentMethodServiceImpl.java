@@ -43,4 +43,57 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
     public List<PaymentMethod> getPaymentMethodsForUser(Long userId) {
         return paymentMethodRepository.findByUserId(userId);
     }
+
+    @Override
+    @Transactional
+    public boolean deletePaymentMethod(Long userId, Long paymentMethodId) {
+        PaymentMethod pm = paymentMethodRepository.findById(paymentMethodId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Payment method not found"));
+        if (!pm.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(FORBIDDEN, "Cannot delete payment method of another user");
+        }
+        paymentMethodRepository.delete(pm);
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public PaymentMethod setDefault(Long userId, Long paymentMethodId) {
+        List<PaymentMethod> methods = paymentMethodRepository.findByUserId(userId);
+        PaymentMethod target = methods.stream().filter(m -> m.getId().equals(paymentMethodId))
+                .findFirst().orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Payment method not found for user"));
+        // Clear current defaults
+        methods.forEach(m -> {
+            if (Boolean.TRUE.equals(m.getIsDefault())) {
+                m.setIsDefault(false);
+                paymentMethodRepository.save(m);
+            }
+        });
+        target.setIsDefault(true);
+        return paymentMethodRepository.save(target);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaymentMethod getPaymentMethod(Long userId, Long paymentMethodId) {
+        PaymentMethod pm = paymentMethodRepository.findById(paymentMethodId)
+                .orElse(null);
+        if (pm != null && !pm.getUser().getId().equals(userId)) {
+            return null;
+        }
+        return pm;
+    }
+
+    @Override
+    @Transactional
+    public PaymentMethod updatePaymentMethod(PaymentMethod paymentMethod) {
+        // Encrypt sensitive fields before saving
+        if (paymentMethod.getCciEncrypted() != null && !paymentMethod.getCciEncrypted().isEmpty()) {
+            paymentMethod.setCciEncrypted(com.cineplus.cineplus.persistence.util.Encryptor.encrypt(paymentMethod.getCciEncrypted()));
+        }
+        if (paymentMethod.getVerificationCodeEncrypted() != null && !paymentMethod.getVerificationCodeEncrypted().isEmpty()) {
+            paymentMethod.setVerificationCodeEncrypted(com.cineplus.cineplus.persistence.util.Encryptor.encrypt(paymentMethod.getVerificationCodeEncrypted()));
+        }
+        return paymentMethodRepository.save(paymentMethod);
+    }
 }

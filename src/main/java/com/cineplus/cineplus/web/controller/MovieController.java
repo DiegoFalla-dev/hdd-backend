@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import com.cineplus.cineplus.domain.entity.MovieStatus;
 
 import java.util.List;
 
@@ -18,8 +20,39 @@ public class MovieController {
     private final MovieService movieService;
 
     @GetMapping
-    public ResponseEntity<List<MovieDto>> getAllMovies() {
-        List<MovieDto> movies = movieService.findAllMovies();
+    public ResponseEntity<?> getMovies(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false, name = "q") String query,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size) {
+
+        boolean anyFilter = status != null || genre != null || query != null;
+        if (!anyFilter && page == 0) { // original simple list
+            List<MovieDto> movies = movieService.findAllMovies();
+            return ResponseEntity.ok(movies);
+        }
+
+        MovieStatus statusEnum = status != null ? MovieStatus.forValue(status) : null;
+        Page<MovieDto> result = movieService.searchMovies(statusEnum, genre, query, page, size);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/now-playing")
+    public ResponseEntity<List<MovieDto>> getNowPlaying() {
+        List<MovieDto> movies = movieService.findByStatus(MovieStatus.CARTELERA);
+        return ResponseEntity.ok(movies);
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<MovieDto>> getUpcoming() {
+        List<MovieDto> movies = movieService.findByStatus(MovieStatus.PROXIMO);
+        return ResponseEntity.ok(movies);
+    }
+
+    @GetMapping("/presale")
+    public ResponseEntity<List<MovieDto>> getPresale() {
+        List<MovieDto> movies = movieService.findByStatus(MovieStatus.PREVENTA);
         return ResponseEntity.ok(movies);
     }
 

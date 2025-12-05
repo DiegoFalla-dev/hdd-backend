@@ -1,5 +1,6 @@
 package com.cineplus.cineplus.web.controller;
 
+import com.cineplus.cineplus.domain.dto.SeatDto;
 import com.cineplus.cineplus.domain.dto.ShowtimeDto;
 import com.cineplus.cineplus.domain.entity.Showtime.FormatType;
 import com.cineplus.cineplus.domain.service.ShowtimeService;
@@ -26,9 +27,14 @@ public class ShowtimeController {
     @GetMapping
     public ResponseEntity<List<ShowtimeDto>> getShowtimeDatesOrDetails(
             @RequestParam @NotNull Long cinema,
-            @RequestParam @NotNull Long movie,
+            @RequestParam(required = false) Long movie,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) FormatType format) {
+
+        // Si no se especifica movie, devolver todas las funciones del cine
+        if (movie == null) {
+            return ResponseEntity.ok(showtimeService.getShowtimesByCinema(cinema));
+        }
 
         if (date == null) {
             // Si no se especifica fecha, se asume que se buscan las fechas disponibles (getAvailableShowtimeDates)
@@ -39,10 +45,9 @@ public class ShowtimeController {
             // Si se especifica fecha y formato, se buscan los horarios específicos
             return ResponseEntity.ok(showtimeService.getMovieShowtimes(cinema, movie, date, format));
         } else {
-            // Si solo se especifica fecha, podríamos devolver todos los formatos para esa fecha,
-            // pero por el momento el servicio requiere un formato.
-            // Se puede extender esta lógica si es necesario en el futuro.
-            return ResponseEntity.badRequest().build();
+            // Si se especifica fecha pero no formato, devolver todas las funciones del día (todos los formatos)
+            // para que el frontend pueda extraer los formatos disponibles y los horarios.
+            return ResponseEntity.ok(showtimeService.getShowtimesByDate(cinema, movie, date));
         }
     }
 
@@ -61,6 +66,13 @@ public class ShowtimeController {
     public ResponseEntity<Void> generateSeats(@PathVariable Long id) {
         showtimeService.generateSeatsForShowtime(id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    // GET /api/showtimes/{id}/seats (Obtener todos los asientos de una función)
+    @GetMapping("/{id}/seats")
+    public ResponseEntity<List<SeatDto>> getSeats(@PathVariable Long id) {
+        List<SeatDto> seats = showtimeService.getSeatsByShowtime(id);
+        return ResponseEntity.ok(seats);
     }
 
     // GET /api/showtimes/{id}/seats/occupied
@@ -101,6 +113,21 @@ public class ShowtimeController {
     public ResponseEntity<ShowtimeDto> createShowtime(@RequestBody ShowtimeDto showtimeDto) {
         ShowtimeDto createdShowtime = showtimeService.saveShowtime(showtimeDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdShowtime);
+    }
+
+    // PUT /api/showtimes/{id}
+    @PutMapping("/{id}")
+    public ResponseEntity<ShowtimeDto> updateShowtime(@PathVariable Long id, @RequestBody ShowtimeDto showtimeDto) {
+        showtimeDto.setId(id);
+        ShowtimeDto updatedShowtime = showtimeService.updateShowtime(showtimeDto);
+        return ResponseEntity.ok(updatedShowtime);
+    }
+
+    // DELETE /api/showtimes/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteShowtime(@PathVariable Long id) {
+        showtimeService.deleteShowtime(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

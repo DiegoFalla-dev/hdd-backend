@@ -21,6 +21,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService; // Será UserDetailsServiceImpl
+    private final com.cineplus.cineplus.web.security.SessionActivityService sessionActivityService;
 
     @Override
     protected void doFilterInternal(
@@ -43,6 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             if (jwtService.isTokenValid(jwt, userDetails)) {
+                // Check inactivity: if user session is inactive, reject authentication
+                if (sessionActivityService.isInactive(username)) {
+                    // Inactive due to idle timeout: respond 401 and do not set security context
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Session expired due to inactivity");
+                    return;
+                }
+
+                // mark activity and proceed
+                sessionActivityService.touch(username);
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "showtimes")
@@ -39,6 +40,10 @@ public class Showtime {
     private FormatType format; // 2D, 3D, XD
 
     private int availableSeats;
+    
+    // Precio por entrada para esta función
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
     // totalSeats se puede obtener de theater.getTotalSeats()
 
     public enum FormatType {

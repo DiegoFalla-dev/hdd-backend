@@ -38,6 +38,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
     @Transactional
     public User registerNewUser(RegisterRequestDto registerRequest) {
         // Validate email uniqueness

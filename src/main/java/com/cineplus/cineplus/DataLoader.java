@@ -3,6 +3,10 @@ package com.cineplus.cineplus;
 import com.cineplus.cineplus.domain.entity.Role;
 import com.cineplus.cineplus.domain.entity.Role.RoleName;
 import com.cineplus.cineplus.domain.repository.RoleRepository;
+import com.cineplus.cineplus.domain.repository.ShowtimeRepository;
+import com.cineplus.cineplus.domain.repository.TicketTypeRepository;
+import com.cineplus.cineplus.domain.entity.TicketType;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -13,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class DataLoader implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
+    private final ShowtimeRepository showtimeRepository;
+    private final TicketTypeRepository ticketTypeRepository;
 
     @Override
     @Transactional
@@ -26,6 +32,24 @@ public class DataLoader implements CommandLineRunner {
         }
         if (roleRepository.findByName(RoleName.ROLE_USER).isEmpty()) {
             roleRepository.save(new Role(null, RoleName.ROLE_USER));
+        }
+
+
+
+        // Seed default ticket types if none exist
+        try {
+            if (ticketTypeRepository.count() == 0) {
+                ticketTypeRepository.saveAll(java.util.List.of(
+                        TicketType.builder().code("PROMO_ONLINE").name("PROMO ONLINE").price(BigDecimal.valueOf(14.96)).active(true).build(),
+                        TicketType.builder().code("PERSONA_CON_DISCAPACIDAD").name("PERSONA CON DISCAPACIDAD").price(BigDecimal.valueOf(17.70)).active(true).build(),
+                        TicketType.builder().code("SILLA_DE_RUEDAS").name("SILLA DE RUEDAS").price(BigDecimal.valueOf(17.70)).active(true).build(),
+                        TicketType.builder().code("NINO").name("NIÑO").price(BigDecimal.valueOf(21.60)).active(true).build(),
+                        TicketType.builder().code("ADULTO").name("ADULTO").price(BigDecimal.valueOf(23.60)).active(true).build(),
+                        TicketType.builder().code("50_DCTO_BANCO_RIPLEY").name("50% DCTO BANCO RIPLEY").price(BigDecimal.valueOf(12.80)).active(true).build()
+                ));
+            }
+        } catch (Exception ex) {
+            System.err.println("DataLoader: error seeding ticket types: " + ex.getMessage());
         }
     }
 }
