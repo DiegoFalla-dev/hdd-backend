@@ -12,6 +12,7 @@
 
 -- NOTA: Los roles (ROLE_ADMIN, ROLE_MANAGER, ROLE_USER) se crean automáticamente 
 -- por DataLoader.java al iniciar la aplicación. No es necesario insertarlos manualmente.
+-- Solo inserta los que faltan (evita duplicados)
 
 -- 1. MOVIES (21 películas con datos reales)
     INSERT INTO movies (title, synopsis, genre, classification, duration, card_image_url, banner_url, trailer_url, status) VALUES
@@ -51,17 +52,8 @@ INSERT INTO cinemas (name, city, address, location, image) VALUES
 ('Cineplus Jockey Plaza', 'Lima', 'Av. Javier Prado Este 4200, Santiago de Surco', 'Jockey Plaza', 'https://i.imgur.com/5pVThyZ.png'),
 ('Cineplus Lambra', 'Lima', 'Av. La Molina 1100, La Molina', 'Lambra', 'https://i.imgur.com/LD1nrhu.png');
 
--- 2.1
-INSERT IGNORE INTO cinema_available_formats (cinema_id, format) VALUES
-(1, '2D'), (1, '3D'), (1, 'XD'),
-(2, '2D'), (2, '3D'), (2, 'XD'),
-(3, '2D'), (3, '3D'), (3, 'XD'),
-(4, '2D'), (4, '3D'), (4, 'XD'),
-(5, '2D'), (5, '3D'), (5, 'XD'),
-(6, '2D'), (6, '3D'), (6, 'XD'),
-(7, '2D'), (7, '3D'), (7, 'XD'),
-(8, '2D'), (8, '3D'), (8, 'XD');
--- NOTA: El script insert_cinema_formats.sql también inserta estos datos.
+-- 2.1 Debe de estar en 0
+SELECT COUNT(*) FROM cinema_available_formats;
 
 -- 3. CONCESSION_PRODUCTS
 INSERT INTO concession_products (name, description, price, category, image_url, available) VALUES
@@ -98,6 +90,42 @@ INSERT INTO concession_products (name, description, price, category, image_url, 
 ('Alitas BBQ x7', '7 alitas de pollo con salsa BBQ', 18.90, 'SNACKS', 'https://i.imgur.com/cXOORTE.png', TRUE),
 ('Quesadilla', 'Quesadilla de queso con guacamole', 15.90, 'SNACKS', 'https://i.imgur.com/oK4ZOoP.png', TRUE),
 ('Wrap de Pollo', 'Wrap con pollo, lechuga y salsa ranch', 19.90, 'SNACKS', 'https://i.imgur.com/VwpHY4O.png', TRUE);
+
+-- Insertar todas las combinaciones de cinema_id (1-8) con product_id (1-33)
+INSERT INTO cinema_product (cinema_id, product_id) VALUES
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10),
+(1, 11), (1, 12), (1, 13), (1, 14), (1, 15), (1, 16), (1, 17), (1, 18), (1, 19), (1, 20),
+(1, 21), (1, 22), (1, 23), (1, 24), (1, 25), (1, 26), (1, 27), (1, 28), (1, 29), (1, 30),
+(1, 31), (1, 32), (1, 33),
+(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9), (2, 10),
+(2, 11), (2, 12), (2, 13), (2, 14), (2, 15), (2, 16), (2, 17), (2, 18), (2, 19), (2, 20),
+(2, 21), (2, 22), (2, 23), (2, 24), (2, 25), (2, 26), (2, 27), (2, 28), (2, 29), (2, 30),
+(2, 31), (2, 32), (2, 33),
+(3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10),
+(3, 11), (3, 12), (3, 13), (3, 14), (3, 15), (3, 16), (3, 17), (3, 18), (3, 19), (3, 20),
+(3, 21), (3, 22), (3, 23), (3, 24), (3, 25), (3, 26), (3, 27), (3, 28), (3, 29), (3, 30),
+(3, 31), (3, 32), (3, 33),
+(4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7), (4, 8), (4, 9), (4, 10),
+(4, 11), (4, 12), (4, 13), (4, 14), (4, 15), (4, 16), (4, 17), (4, 18), (4, 19), (4, 20),
+(4, 21), (4, 22), (4, 23), (4, 24), (4, 25), (4, 26), (4, 27), (4, 28), (4, 29), (4, 30),
+(4, 31), (4, 32), (4, 33),
+(5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (5, 10),
+(5, 11), (5, 12), (5, 13), (5, 14), (5, 15), (5, 16), (5, 17), (5, 18), (5, 19), (5, 20),
+(5, 21), (5, 22), (5, 23), (5, 24), (5, 25), (5, 26), (5, 27), (5, 28), (5, 29), (5, 30),
+(5, 31), (5, 32), (5, 33),
+(6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6), (6, 7), (6, 8), (6, 9), (6, 10),
+(6, 11), (6, 12), (6, 13), (6, 14), (6, 15), (6, 16), (6, 17), (6, 18), (6, 19), (6, 20),
+(6, 21), (6, 22), (6, 23), (6, 24), (6, 25), (6, 26), (6, 27), (6, 28), (6, 29), (6, 30),
+(6, 31), (6, 32), (6, 33),
+(7, 1), (7, 2), (7, 3), (7, 4), (7, 5), (7, 6), (7, 7), (7, 8), (7, 9), (7, 10),
+(7, 11), (7, 12), (7, 13), (7, 14), (7, 15), (7, 16), (7, 17), (7, 18), (7, 19), (7, 20),
+(7, 21), (7, 22), (7, 23), (7, 24), (7, 25), (7, 26), (7, 27), (7, 28), (7, 29), (7, 30),
+(7, 31), (7, 32), (7, 33),
+(8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 6), (8, 7), (8, 8), (8, 9), (8, 10),
+(8, 11), (8, 12), (8, 13), (8, 14), (8, 15), (8, 16), (8, 17), (8, 18), (8, 19), (8, 20),
+(8, 21), (8, 22), (8, 23), (8, 24), (8, 25), (8, 26), (8, 27), (8, 28), (8, 29), (8, 30),
+(8, 31), (8, 32), (8, 33);
+
 
 -- 4. PROMOTIONS
 INSERT INTO promotions (code, description, discount_type, value, start_date, end_date, max_uses, current_uses, min_amount, is_active) VALUES
@@ -543,7 +571,6 @@ INSERT INTO showtimes (movie_id, theater_id, date, time, format, available_seats
 -- ============================================
 -- VERIFICACIÓN
 -- ============================================
-
 -- Verificar que las tablas están vacías (excepto roles y ticket_types)
 SELECT 
     'cinemas' AS tabla, COUNT(*) AS registros FROM cinemas
