@@ -51,6 +51,18 @@ INSERT INTO cinemas (name, city, address, location, image) VALUES
 ('Cineplus Jockey Plaza', 'Lima', 'Av. Javier Prado Este 4200, Santiago de Surco', 'Jockey Plaza', 'https://i.imgur.com/5pVThyZ.png'),
 ('Cineplus Lambra', 'Lima', 'Av. La Molina 1100, La Molina', 'Lambra', 'https://i.imgur.com/LD1nrhu.png');
 
+-- 2.1
+INSERT IGNORE INTO cinema_available_formats (cinema_id, format) VALUES
+(1, '2D'), (1, '3D'), (1, 'XD'),
+(2, '2D'), (2, '3D'), (2, 'XD'),
+(3, '2D'), (3, '3D'), (3, 'XD'),
+(4, '2D'), (4, '3D'), (4, 'XD'),
+(5, '2D'), (5, '3D'), (5, 'XD'),
+(6, '2D'), (6, '3D'), (6, 'XD'),
+(7, '2D'), (7, '3D'), (7, 'XD'),
+(8, '2D'), (8, '3D'), (8, 'XD');
+-- NOTA: El script insert_cinema_formats.sql también inserta estos datos.
+
 -- 3. CONCESSION_PRODUCTS
 INSERT INTO concession_products (name, description, price, category, image_url, available) VALUES
 ('Combo Caliente', 'Canchita grande + Gaseosa grande + Hot dog', 50.20, 'COMBOS', 'https://i.imgur.com/3QXTlTP.png', TRUE),
@@ -113,8 +125,8 @@ INSERT INTO ticket_types (code, name, price, active) VALUES
 -- Usuario: admin     | Contraseña: admin123
 -- Usuario: diego123  | Contraseña: diego123
 INSERT INTO users (username, national_id, first_name, last_name, email, birth_date, gender, password) VALUES
-('admin', '00000000', 'Admin', 'Sistema', 'admin@cineplus.com', '1990-01-01', 'Otro', '$2a$10$N9qo8uLOickgx2ZMRZoMye1J3uv5Le1'),
-('diego123', '12345678', 'Diego', 'Falla', 'diego@mail.com', '1995-03-15', 'Masculino', '$2a$10$N9qo8uLOickgx2ZMRZoMye2J3uv5Le2');
+('admin', '00000000', 'Admin', 'Sistema', 'admin@cineplus.com', '1990-01-01', 'Otro', '$2a$12$UTNbEyX2RJnXyeVXL0KKzuAswdDaqhHkvo2kzSCt6LgWYEvDDwz8m'),
+('diego123', '12345678', 'Diego', 'Falla', 'diego@mail.com', '1995-03-15', 'Masculino', '$2a$10$VEjxo0jq2YT5v5DCuf/ILOe4Sxmf9P3BI.IWqcKKJXaVK9e5fJXXi');
 
 -- 7. USER_ROLES
 -- NOTA: Los role_id se asignan automáticamente: 1=ROLE_ADMIN, 2=ROLE_MANAGER, 3=ROLE_USER
@@ -532,16 +544,22 @@ INSERT INTO showtimes (movie_id, theater_id, date, time, format, available_seats
 -- VERIFICACIÓN
 -- ============================================
 
-SELECT 'Resumen de datos insertados:' as titulo;
-SELECT 'roles' as tabla, COUNT(*) as total FROM roles
+-- Verificar que las tablas están vacías (excepto roles y ticket_types)
+SELECT 
+    'cinemas' AS tabla, COUNT(*) AS registros FROM cinemas
 UNION ALL SELECT 'movies', COUNT(*) FROM movies
-UNION ALL SELECT 'cinemas', COUNT(*) FROM cinemas
 UNION ALL SELECT 'theaters', COUNT(*) FROM theaters
 UNION ALL SELECT 'showtimes', COUNT(*) FROM showtimes
-UNION ALL SELECT 'payment_methods', COUNT(*) FROM payment_methods
-UNION ALL SELECT 'users', COUNT(*) FROM users;
-
--- Ver películas por estado
-SELECT status, COUNT(*) as cantidad FROM movies GROUP BY status;
+UNION ALL SELECT 'concession_products', COUNT(*) FROM concession_products
+UNION ALL SELECT 'cinema_product', COUNT(*) FROM cinema_product
+UNION ALL SELECT 'promotions', COUNT(*) FROM promotions
+UNION ALL SELECT 'users', COUNT(*) FROM users
+UNION ALL SELECT 'user_roles', COUNT(*) FROM user_roles
+UNION ALL SELECT 'orders', COUNT(*) FROM orders
+UNION ALL SELECT 'order_items', COUNT(*) FROM order_items
+UNION ALL SELECT 'order_concessions', COUNT(*) FROM order_concessions
+UNION ALL SELECT 'seats', COUNT(*) FROM seats
+UNION ALL SELECT 'roles (NO TRUNCATE)', COUNT(*) FROM roles
+UNION ALL SELECT 'ticket_types (NO TRUNCATE)', COUNT(*) FROM ticket_types;
 
 -- FIN DEL SCRIPT
