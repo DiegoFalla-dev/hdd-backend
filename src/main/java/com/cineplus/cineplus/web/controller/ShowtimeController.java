@@ -4,6 +4,7 @@ import com.cineplus.cineplus.domain.dto.SeatDto;
 import com.cineplus.cineplus.domain.dto.ShowtimeDto;
 import com.cineplus.cineplus.domain.entity.Showtime.FormatType;
 import com.cineplus.cineplus.domain.service.ShowtimeService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,7 +16,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 @RestController
 @RequestMapping("/api/showtimes")
 @RequiredArgsConstructor
@@ -110,14 +110,14 @@ public class ShowtimeController {
 
     // POST /api/showtimes
     @PostMapping
-    public ResponseEntity<ShowtimeDto> createShowtime(@RequestBody ShowtimeDto showtimeDto) {
+    public ResponseEntity<ShowtimeDto> createShowtime(@Valid @RequestBody ShowtimeDto showtimeDto) {
         ShowtimeDto createdShowtime = showtimeService.saveShowtime(showtimeDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdShowtime);
     }
 
     // PUT /api/showtimes/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<ShowtimeDto> updateShowtime(@PathVariable Long id, @RequestBody ShowtimeDto showtimeDto) {
+    public ResponseEntity<ShowtimeDto> updateShowtime(@PathVariable Long id, @Valid @RequestBody ShowtimeDto showtimeDto) {
         showtimeDto.setId(id);
         ShowtimeDto updatedShowtime = showtimeService.updateShowtime(showtimeDto);
         return ResponseEntity.ok(updatedShowtime);

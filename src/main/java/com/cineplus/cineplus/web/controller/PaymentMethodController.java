@@ -5,6 +5,7 @@ import com.cineplus.cineplus.domain.dto.PaymentMethodDto;
 import com.cineplus.cineplus.domain.entity.PaymentMethod;
 import com.cineplus.cineplus.domain.service.PaymentMethodService;
 import com.cineplus.cineplus.persistence.mapper.UserMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class PaymentMethodController {
     }
 
     @PostMapping
-    public ResponseEntity<?> add(@PathVariable Long userId, @RequestBody PaymentMethodCreateDto dto) {
+    public ResponseEntity<?> add(@PathVariable Long userId, @Valid @RequestBody PaymentMethodCreateDto dto) {
         PaymentMethod pm = new PaymentMethod();
         pm.setType(dto.getType()); // CARD o YAPE
         
@@ -70,7 +71,7 @@ public class PaymentMethodController {
     }
 
     @PutMapping("/{paymentMethodId}")
-    public ResponseEntity<PaymentMethodDto> update(@PathVariable Long userId, @PathVariable Long paymentMethodId, @RequestBody PaymentMethodCreateDto dto) {
+    public ResponseEntity<PaymentMethodDto> update(@PathVariable Long userId, @PathVariable Long paymentMethodId, @Valid @RequestBody PaymentMethodCreateDto dto) {
         PaymentMethod pm = paymentMethodService.getPaymentMethod(userId, paymentMethodId);
         if (pm == null) {
             return ResponseEntity.notFound().build();

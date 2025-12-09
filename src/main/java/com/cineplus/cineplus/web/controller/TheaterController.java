@@ -2,6 +2,7 @@ package com.cineplus.cineplus.web.controller;
 
 import com.cineplus.cineplus.domain.dto.TheaterDto;
 import com.cineplus.cineplus.domain.service.TheaterService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 @RestController
 @RequestMapping("/api/theaters")
 @RequiredArgsConstructor
@@ -36,13 +36,13 @@ public class TheaterController {
     }
 
     @PostMapping
-    public ResponseEntity<TheaterDto> createTheater(@RequestBody TheaterDto theaterDto) {
+    public ResponseEntity<TheaterDto> createTheater(@Valid @RequestBody TheaterDto theaterDto) {
         TheaterDto createdTheater = theaterService.saveTheater(theaterDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTheater);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TheaterDto> updateTheater(@PathVariable Long id, @RequestBody TheaterDto theaterDto) {
+    public ResponseEntity<TheaterDto> updateTheater(@PathVariable Long id, @Valid @RequestBody TheaterDto theaterDto) {
         theaterDto.setId(id); // Asegura que el ID del DTO coincida con el PathVariable
         return theaterService.findTheaterById(id)
                 .map(existingTheater -> ResponseEntity.ok(theaterService.saveTheater(theaterDto)))
