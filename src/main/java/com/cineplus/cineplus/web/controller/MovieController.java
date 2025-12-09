@@ -2,6 +2,7 @@ package com.cineplus.cineplus.web.controller;
 
 import com.cineplus.cineplus.domain.dto.MovieDto;
 import com.cineplus.cineplus.domain.service.MovieService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,6 @@ import com.cineplus.cineplus.domain.entity.MovieStatus;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 @RestController
 @RequestMapping("/api/movies")
 @RequiredArgsConstructor
@@ -64,13 +64,13 @@ public class MovieController {
     }
 
     @PostMapping
-    public ResponseEntity<MovieDto> createMovie(@RequestBody MovieDto movieDto) {
+    public ResponseEntity<MovieDto> createMovie(@Valid @RequestBody MovieDto movieDto) {
         MovieDto createdMovie = movieService.saveMovie(movieDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMovie);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MovieDto> updateMovie(@PathVariable Long id, @RequestBody MovieDto movieDto) {
+    public ResponseEntity<MovieDto> updateMovie(@PathVariable Long id, @Valid @RequestBody MovieDto movieDto) {
         // En una actualización, el ID del DTO podría no coincidir con el PathVariable.
         // Aseguramos que el ID correcto sea el del PathVariable.
         movieDto.setId(id);

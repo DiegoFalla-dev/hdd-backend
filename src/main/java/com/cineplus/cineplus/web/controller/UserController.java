@@ -6,6 +6,8 @@ import com.cineplus.cineplus.domain.entity.User;
 import com.cineplus.cineplus.domain.service.OrderService;
 import com.cineplus.cineplus.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final OrderService orderService;
 
@@ -36,6 +39,7 @@ public class UserController {
             List<OrderDTO> orders = orderService.getOrdersByUserId(id);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
+            log.error("Error retrieving purchases for user {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

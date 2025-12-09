@@ -2,6 +2,7 @@ package com.cineplus.cineplus.web.controller;
 
 import com.cineplus.cineplus.domain.dto.CinemaDto;
 import com.cineplus.cineplus.domain.service.CinemaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 @RestController
 @RequestMapping("/api/cinemas")
 @RequiredArgsConstructor
@@ -31,13 +31,13 @@ public class CinemaController {
     }
 
     @PostMapping
-    public ResponseEntity<CinemaDto> createCinema(@RequestBody CinemaDto cinemaDto) {
+    public ResponseEntity<CinemaDto> createCinema(@Valid @RequestBody CinemaDto cinemaDto) {
         CinemaDto createdCinema = cinemaService.saveCinema(cinemaDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCinema);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CinemaDto> updateCinema(@PathVariable Long id, @RequestBody CinemaDto cinemaDto) {
+    public ResponseEntity<CinemaDto> updateCinema(@PathVariable Long id, @Valid @RequestBody CinemaDto cinemaDto) {
         cinemaDto.setId(id);
         return cinemaService.findCinemaById(id)
                 .map(existingCinema -> ResponseEntity.ok(cinemaService.saveCinema(cinemaDto)))
