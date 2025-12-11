@@ -7,6 +7,7 @@ import com.cineplus.cineplus.domain.dto.JwtResponseDto;
 import com.cineplus.cineplus.domain.entity.Role;
 import com.cineplus.cineplus.domain.entity.Role.RoleName;
 import com.cineplus.cineplus.domain.entity.User;
+import com.cineplus.cineplus.domain.repository.CinemaRepository;
 import com.cineplus.cineplus.domain.repository.RoleRepository;
 import com.cineplus.cineplus.domain.repository.UserRepository;
 import com.cineplus.cineplus.domain.service.AuthService;
@@ -36,6 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final com.cineplus.cineplus.web.security.SessionActivityService sessionActivityService;
     private final UserRepository userRepository;
+    private final CinemaRepository cinemaRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
@@ -120,7 +122,17 @@ public class AuthServiceImpl implements AuthService {
             });
         }
         user.setRoles(roles);
-        user.setFavoriteCinema(registerRequest.getFavoriteCinema());
+        
+        // Set favorite cinema if provided
+        if (registerRequest.getFavoriteCinema() != null && !registerRequest.getFavoriteCinema().isBlank()) {
+            try {
+                Long cinemaId = Long.parseLong(registerRequest.getFavoriteCinema());
+                cinemaRepository.findById(cinemaId).ifPresent(user::setFavoriteCinemaEntity);
+            } catch (NumberFormatException e) {
+                // If not a valid ID, ignore
+            }
+        }
+        
         userRepository.save(user);
     }
 
@@ -147,7 +159,8 @@ public class AuthServiceImpl implements AuthService {
 
         // Fetch user entity to include favoriteCinema in the response
         User userEntity = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
-        String fav = userEntity != null ? userEntity.getFavoriteCinema() : null;
+        String fav = userEntity != null && userEntity.getFavoriteCinemaEntity() != null ? 
+                    userEntity.getFavoriteCinemaEntity().getId().toString() : null;
 
         return new JwtResponseDto(jwt,
             userDetails.getId(),
@@ -177,7 +190,8 @@ public class AuthServiceImpl implements AuthService {
         String newAccessToken = jwtUtils.generateTokenFromUsername(principal.getUsername());
         List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(java.util.stream.Collectors.toList());
         User userEntity = userRepository.findByUsername(principal.getUsername()).orElse(null);
-        String fav = userEntity != null ? userEntity.getFavoriteCinema() : null;
+        String fav = userEntity != null && userEntity.getFavoriteCinemaEntity() != null ? 
+                    userEntity.getFavoriteCinemaEntity().getId().toString() : null;
         return new JwtResponseDto(newAccessToken, principal.getId(), principal.getUsername(), principal.getEmail(), roles, fav);
     }
 }

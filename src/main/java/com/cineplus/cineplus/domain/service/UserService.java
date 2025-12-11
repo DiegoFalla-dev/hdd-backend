@@ -19,4 +19,7 @@ public interface UserService {
     Optional<UserDto> updateUser(Long id, UserDto userDto);
     boolean deleteUser(Long id);
     long countUsers();
+    
+    // Validation
+    boolean validateUserAccount(Long id);
 }

@@ -2,6 +2,7 @@ package com.cineplus.cineplus.persistence.service.impl;
 
 import com.cineplus.cineplus.domain.dto.PromotionDTO;
 import com.cineplus.cineplus.domain.entity.Promotion;
+import com.cineplus.cineplus.domain.entity.PromotionValidationErrorType;
 import com.cineplus.cineplus.domain.repository.PromotionRepository;
 import com.cineplus.cineplus.domain.service.PromotionService;
 import com.cineplus.cineplus.persistence.mapper.PromotionMapper;
@@ -113,5 +114,57 @@ public class PromotionServiceImpl implements PromotionService {
         }
 
         return true; // La promoción es válida y aplicable
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PromotionValidationErrorType validatePromotionWithErrorType(String promotionCode, BigDecimal totalAmount) {
+        if (promotionCode == null || promotionCode.isEmpty() || totalAmount == null) {
+            return PromotionValidationErrorType.PROMOTION_NOT_FOUND;
+        }
+
+        Optional<Promotion> promotionOptional = promotionRepository.findByCode(promotionCode);
+        if (promotionOptional.isEmpty()) {
+            return PromotionValidationErrorType.PROMOTION_NOT_FOUND; // Promoción no encontrada
+        }
+
+        Promotion promotion = promotionOptional.get();
+        LocalDateTime now = LocalDateTime.now();
+
+        // Verificar si la promoción está activa manualmente
+        if (!promotion.getIsActive()) {
+            // Si es de un solo uso y currentUses >= 1, fue usado
+            if (promotion.getMaxUses() != null && promotion.getMaxUses() == 1) {
+                return PromotionValidationErrorType.SINGLE_USE_EXPIRED;
+            }
+            // Si es de múltiples usos, agotó sus usos
+            if (promotion.getMaxUses() != null && promotion.getMaxUses() > 1) {
+                return PromotionValidationErrorType.USAGE_LIMIT_EXCEEDED;
+            }
+            // En otro caso, está desactivado manualmente
+            return PromotionValidationErrorType.PROMOTION_INACTIVE;
+        }
+
+        // Verificar rango de fechas
+        if (now.isBefore(promotion.getStartDate()) || now.isAfter(promotion.getEndDate())) {
+            return PromotionValidationErrorType.DATE_RANGE_EXPIRED;
+        }
+
+        // Verificar usos máximos
+        if (promotion.getMaxUses() != null && promotion.getCurrentUses() >= promotion.getMaxUses()) {
+            // Si es de un solo uso, ya fue usado
+            if (promotion.getMaxUses() == 1) {
+                return PromotionValidationErrorType.SINGLE_USE_EXPIRED;
+            }
+            // Si es de múltiples usos, agotó sus usos
+            return PromotionValidationErrorType.USAGE_LIMIT_EXCEEDED;
+        }
+
+        // Verificar monto mínimo
+        if (promotion.getMinAmount() != null && totalAmount.compareTo(promotion.getMinAmount()) < 0) {
+            return PromotionValidationErrorType.MIN_AMOUNT_NOT_MET;
+        }
+
+        return PromotionValidationErrorType.VALID; // La promoción es válida y aplicable
     }
 }

@@ -20,6 +20,15 @@ public interface UserMapper {
     @Mapping(source = "roles", target = "roles", qualifiedByName = "mapRolesToStrings")
     @Mapping(source = "paymentMethods", target = "paymentMethods", qualifiedByName = "mapPaymentMethods")
     @Mapping(source = "nationalId", target = "nationalId")
+    @Mapping(source = "gender", target = "gender")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "favoriteCinemaEntity", target = "favoriteCinema")
+    @Mapping(source = "fidelityPoints", target = "fidelityPoints")
+    @Mapping(source = "lastPurchaseDate", target = "lastPurchaseDate")
+    @Mapping(source = "isValid", target = "isValid")
+    @Mapping(source = "isActive", target = "isActive")
+    @Mapping(source = "isTwoFactorEnabled", target = "isTwoFactorEnabled")
+    @Mapping(source = "activationTokenExpiry", target = "activationTokenExpiry")
     UserDto toDto(User user);
 
     // Helpers

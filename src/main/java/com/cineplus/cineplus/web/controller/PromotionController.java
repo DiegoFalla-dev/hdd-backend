@@ -45,6 +45,7 @@ public class PromotionController {
      * Endpoint para validar una promoción contra un monto total.
      * Responde con un objeto que incluye:
      * - isValid: booleano indicando si la promoción es aplicable
+     * - errorType: tipo de error específico si no es válida
      * - promotion: los detalles de la promoción (si es válida)
      * - message: mensaje explicativo
      */
@@ -57,22 +58,23 @@ public class PromotionController {
         
         if (code == null || code.isEmpty()) {
             response.put("isValid", false);
+            response.put("errorType", "PROMOTION_NOT_FOUND");
             response.put("message", "Código de promoción requerido");
             return ResponseEntity.badRequest().body(response);
         }
 
-        boolean isValid = promotionService.isValidPromotionForAmount(code, amount);
-        response.put("isValid", isValid);
+        // Obtener el tipo de error específico de validación
+        com.cineplus.cineplus.domain.entity.PromotionValidationErrorType errorType = promotionService.validatePromotionWithErrorType(code, amount);
         
-        if (isValid) {
+        response.put("isValid", errorType == com.cineplus.cineplus.domain.entity.PromotionValidationErrorType.VALID);
+        response.put("errorType", errorType.name());
+        response.put("message", errorType.getMessage());
+        
+        if (errorType == com.cineplus.cineplus.domain.entity.PromotionValidationErrorType.VALID) {
             // Si es válida, retornar también los detalles de la promoción
             promotionService.getActivePromotionByCode(code).ifPresent(promo -> {
                 response.put("promotion", promo);
-                response.put("message", "Promoción válida y aplicable");
             });
-        } else {
-            response.put("message", "Promoción no válida o no aplicable para este monto");
-            response.put("requiredAmount", "Monto mínimo para promoción");
         }
         
         return ResponseEntity.ok(response);

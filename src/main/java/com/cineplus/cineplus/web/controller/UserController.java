@@ -4,8 +4,10 @@ import com.cineplus.cineplus.domain.dto.NameDto;
 import com.cineplus.cineplus.domain.dto.OrderDTO;
 import com.cineplus.cineplus.domain.dto.UserDto;
 import com.cineplus.cineplus.domain.entity.User;
+import com.cineplus.cineplus.domain.repository.UserRepository;
 import com.cineplus.cineplus.domain.service.OrderService;
 import com.cineplus.cineplus.domain.service.UserService;
+import com.cineplus.cineplus.persistence.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,8 @@ public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final OrderService orderService;
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -34,7 +38,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         return userService.findUserDtoById(id)
                 .map(ResponseEntity::ok)
@@ -90,5 +94,171 @@ public class UserController {
     public ResponseEntity<Long> getUserCount() {
         return ResponseEntity.ok(userService.countUsers());
     }
-}
 
+    /**
+     * Obtiene los puntos de fidelización del usuario actual o específico
+     * @param id ID del usuario
+     * @return Objeto con puntos y última compra
+     */
+    @GetMapping("/{id}/fidelity-points")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getFidelityPoints(@PathVariable Long id) {
+        try {
+            return userService.findById(id)
+                    .map(user -> {
+                        Integer points = user.getFidelityPoints();
+                        return ResponseEntity.ok(java.util.Map.of(
+                                "fidelityPoints", points != null ? points : 0,
+                                "lastPurchaseDate", user.getLastPurchaseDate() != null ? user.getLastPurchaseDate() : ""
+                        ));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            log.error("Error obteniendo puntos de fidelización para usuario {}", id, e);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of(
+                    "error", "Error obteniendo puntos de fidelización",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Canjea puntos de fidelización por un descuento
+     * Descuento: 100 puntos = S/ 10 de descuento
+     * @param id ID del usuario
+     * @param pointsToRedeem Cantidad de puntos a canjear
+     * @return Objeto con resultado del canje
+     */
+    @PostMapping("/{id}/redeem-points")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> redeemPoints(@PathVariable Long id, @RequestBody java.util.Map<String, Integer> request) {
+        try {
+            Integer pointsToRedeem = request.get("points");
+            if (pointsToRedeem == null || pointsToRedeem <= 0) {
+                return ResponseEntity.badRequest().body(java.util.Map.of(
+                        "success", false,
+                        "message", "Cantidad de puntos inválida"
+                ));
+            }
+
+            return userService.findById(id)
+                    .map(user -> {
+                        // Handle null fidelityPoints
+                        Integer currentPoints = user.getFidelityPoints();
+                        if (currentPoints == null) {
+                            currentPoints = 0;
+                            user.setFidelityPoints(0);
+                        }
+                        
+                        if (currentPoints < pointsToRedeem) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(java.util.Map.of(
+                                    "success", false,
+                                    "message", "Puntos insuficientes para canjear",
+                                    "availablePoints", currentPoints
+                            ));
+                        }
+
+                        // Calcular descuento: 100 puntos = S/ 10
+                        double discountAmount = (pointsToRedeem / 100.0) * 10.0;
+                        
+                        // Restar los puntos y guardar
+                        user.setFidelityPoints(currentPoints - pointsToRedeem);
+                        userRepository.save(user);
+
+                        log.info("Usuario {} canjeó {} puntos por S/ {} de descuento", 
+                                id, pointsToRedeem, String.format("%.2f", discountAmount));
+
+                        return ResponseEntity.ok(java.util.Map.of(
+                                "success", true,
+                                "message", "Puntos canjeados exitosamente",
+                                "pointsRedeemed", pointsToRedeem,
+                                "discountAmount", String.format("%.2f", discountAmount),
+                                "remainingPoints", user.getFidelityPoints()
+                        ));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+
+        } catch (Exception e) {
+            log.error("Error canjeando puntos para usuario {}", id, e);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of(
+                    "success", false,
+                    "message", "Error al canjear puntos",
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Valida la cuenta de un usuario (marca isValid como true)
+     * @param id ID del usuario a validar
+     * @return Respuesta indicando éxito o error
+     */
+    @PatchMapping("/{id}/validate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<?> validateUserAccount(@PathVariable Long id) {
+        try {
+            boolean validated = userService.validateUserAccount(id);
+            if (validated) {
+                log.info("Usuario {} validado exitosamente", id);
+                return ResponseEntity.ok(java.util.Map.of(
+                        "success", true,
+                        "message", "Cuenta de usuario validada exitosamente"
+                ));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("Error validando cuenta de usuario {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of(
+                    "success", false,
+                    "message", "Error al validar cuenta de usuario",
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Actualiza los datos de facturación (RUC y Razón Social) del usuario
+     * @param id ID del usuario
+     * @param request Objeto con ruc y razonSocial
+     * @return Respuesta indicando éxito o error
+     */
+    @PatchMapping("/{id}/billing-info")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> updateBillingInfo(@PathVariable Long id, @RequestBody java.util.Map<String, String> request) {
+        try {
+            String ruc = request.get("ruc");
+            String razonSocial = request.get("razonSocial");
+            
+            if (ruc == null || ruc.trim().isEmpty() || razonSocial == null || razonSocial.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(java.util.Map.of(
+                        "success", false,
+                        "message", "RUC y Razón Social no pueden estar vacíos"
+                ));
+            }
+            
+            return userService.findById(id)
+                    .map(user -> {
+                        user.setRuc(ruc.trim());
+                        user.setRazonSocial(razonSocial.trim());
+                        userRepository.save(user);
+                        
+                        log.info("Usuario {} actualizó información de facturación", id);
+                        return ResponseEntity.ok(java.util.Map.of(
+                                "success", true,
+                                "message", "Información de facturación actualizada exitosamente"
+                        ));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            log.error("Error actualizando información de facturación para usuario {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of(
+                    "success", false,
+                    "message", "Error al actualizar información de facturación",
+                    "error", e.getMessage()
+            ));
+        }
+    }
+}

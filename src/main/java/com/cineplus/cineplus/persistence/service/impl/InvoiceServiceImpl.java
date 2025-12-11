@@ -1,5 +1,6 @@
 package com.cineplus.cineplus.persistence.service.impl;
 
+import com.cineplus.cineplus.domain.repository.OrderRepository;
 import com.cineplus.cineplus.domain.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 @Service
@@ -16,13 +16,11 @@ import java.util.regex.Pattern;
 public class InvoiceServiceImpl implements InvoiceService {
 
     private static final Logger log = LoggerFactory.getLogger(InvoiceServiceImpl.class);
+    private final OrderRepository orderRepository;
     
     // Empresa simulada (CINEPLUS S.A.)
     private static final String COMPANY_RUC = "20123456789";
     private static final String COMPANY_NAME = "CINEPLUS S.A.";
-    
-    // Contador de boletas para serie B001
-    private static final AtomicLong invoiceCounter = new AtomicLong(1);
 
     @Override
     public InvoiceResult generateInvoice(Long orderId, String ruc, String serieNumber) {
@@ -85,10 +83,52 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private String generateInvoiceNumber(String serieNumber) {
         String series = (serieNumber != null && !serieNumber.isEmpty()) ? serieNumber : "B001";
-        long sequenceNumber = invoiceCounter.getAndIncrement();
+        
+        // Leer el último número de factura de la BD
+        long lastSequence = getLastInvoiceSequence(series);
+        long nextSequence = lastSequence + 1;
         
         // Formato: B001-000001
-        return String.format("%s-%06d", series, sequenceNumber);
+        return String.format("%s-%06d", series, nextSequence);
+    }
+
+    /**
+     * Obtiene el último número de secuencia de factura de la serie especificada
+     * leyendo de la base de datos.
+     */
+    private long getLastInvoiceSequence(String series) {
+        try {
+            // Buscar la última orden con un invoiceNumber que comience con la serie
+            String prefix = series + "-";
+            
+            // Obtenemos todas las órdenes y buscamos la que tiene el invoiceNumber más alto
+            // En producción, usaríamos una query SQL más eficiente
+            long maxSequence = 0;
+            
+            // Query: SELECT MAX(CAST(SUBSTRING(invoice_number, LENGTH(series)+2) AS UNSIGNED)) 
+            // FROM orders WHERE invoice_number LIKE 'B001-%'
+            // Por simplicidad, iteramos (esto se puede optimizar)
+            long[] maxSeq = {maxSequence};
+            orderRepository.findAll().forEach(order -> {
+                if (order.getInvoiceNumber() != null && order.getInvoiceNumber().startsWith(prefix)) {
+                    try {
+                        String numPart = order.getInvoiceNumber().substring(prefix.length());
+                        long seq = Long.parseLong(numPart);
+                        if (seq > maxSeq[0]) {
+                            maxSeq[0] = seq;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignorar si no puede parsear
+                    }
+                }
+            });
+            maxSequence = maxSeq[0];
+            
+            return maxSequence;
+        } catch (Exception e) {
+            log.warn("[INVOICE] Error obteniendo última secuencia de factura: {}", e.getMessage());
+            return 0; // Empezar desde 1 si hay error
+        }
     }
 
     private String generateQRData(String invoiceNumber, String ruc, String companyName, 

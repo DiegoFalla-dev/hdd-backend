@@ -38,7 +38,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasOrderId(authentication, #id)") // Admin o el usuario que hizo la orden
+    @PreAuthorize("isAuthenticated()") // Solo requiere estar autenticado
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id)
                 .map(ResponseEntity::ok)
@@ -46,7 +46,7 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #userId)") // Admin o el propio usuario
+    @PreAuthorize("isAuthenticated()") // Solo requiere estar autenticado
     public ResponseEntity<List<OrderDTO>> getOrdersByUserId(@PathVariable Long userId) {
         try {
             List<OrderDTO> orders = orderService.getOrdersByUserId(userId);

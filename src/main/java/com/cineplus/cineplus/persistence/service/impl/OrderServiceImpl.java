@@ -183,6 +183,10 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal discountAmount = BigDecimal.ZERO;
         Promotion appliedPromotion = null;
         
+            // Aplicar descuento por puntos de fidelización si viene en el payload
+            if (createOrderDTO.getFidelityDiscountAmount() != null) {
+                discountAmount = discountAmount.add(createOrderDTO.getFidelityDiscountAmount());
+            }
         if (createOrderDTO.getPromotionCode() != null && !createOrderDTO.getPromotionCode().isEmpty()) {
             // Verificar si la promoción es válida y aplicable
             if (promotionService.isValidPromotionForAmount(createOrderDTO.getPromotionCode(), subtotal)) {
@@ -190,9 +194,22 @@ public class OrderServiceImpl implements OrderService {
                 Optional<Promotion> promoEntityOpt = promotionRepository.findByCode(createOrderDTO.getPromotionCode());
                 if (promoEntityOpt.isPresent()) {
                     appliedPromotion = promoEntityOpt.get();
-                    discountAmount = applyPromotionDiscount(subtotal, appliedPromotion);
+                        discountAmount = discountAmount.add(applyPromotionDiscount(subtotal, appliedPromotion));
                     // Incrementar el contador de usos de la promoción
                     appliedPromotion.setCurrentUses(appliedPromotion.getCurrentUses() + 1);
+                    
+                    // Actualizar is_active basado en el tipo de promoción
+                    if (appliedPromotion.getMaxUses() != null) {
+                        // Si es promoción de un solo uso (maxUses == 1), marcarla como inactiva
+                        if (appliedPromotion.getMaxUses() == 1) {
+                            appliedPromotion.setIsActive(false);
+                        }
+                        // Si es promoción de múltiples usos, marcarla como inactiva solo cuando alcance el límite
+                        else if (appliedPromotion.getMaxUses() > 1 && appliedPromotion.getCurrentUses() >= appliedPromotion.getMaxUses()) {
+                            appliedPromotion.setIsActive(false);
+                        }
+                    }
+                    
                     promotionRepository.save(appliedPromotion); // Guardar la promoción actualizada
                 }
             } else {
@@ -206,6 +223,7 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal totalAmount = breakdown.getGrandTotal(); // Total CON IGV
 
         // Crear la entidad Order
+        // Nota: invoiceNumber se asignará después, una vez que se genere la factura
         Order order = Order.builder()
                 .user(user)
                 .orderDate(LocalDateTime.now())
@@ -214,7 +232,7 @@ public class OrderServiceImpl implements OrderService {
                 .totalAmount(totalAmount) // Total CON IGV
                 .paymentMethod(paymentMethod)
                 .orderStatus(OrderStatus.COMPLETED) // O PENDING si hay un proceso de confirmación de pago
-                .invoiceNumber(UUID.randomUUID().toString().substring(0, 8).toUpperCase()) // Generar un número de factura simple
+                .invoiceNumber(null) // Se asignará después con el número de factura
                 .promotion(appliedPromotion)
                 .build();
 
@@ -348,13 +366,15 @@ public class OrderServiceImpl implements OrderService {
 
     private BigDecimal applyPromotionDiscount(BigDecimal totalAmount, Promotion promotion) {
         if (promotion.getDiscountType() == DiscountType.PERCENTAGE) {
-            // Ejemplo: 10% de descuento -> 0.10
-            BigDecimal discountFactor = promotion.getValue();
-            return totalAmount.subtract(totalAmount.multiply(discountFactor));
+            // El value es el porcentaje (ej: 10 para 10%). Dividir entre 100 para obtener el factor decimal
+            BigDecimal discountFactor = promotion.getValue().divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
+            BigDecimal discountAmount = totalAmount.multiply(discountFactor);
+            return discountAmount;
         } else if (promotion.getDiscountType() == DiscountType.FIXED_AMOUNT) {
-            return totalAmount.subtract(promotion.getValue()).max(BigDecimal.ZERO); // Asegurarse de que no sea negativo
+            // Para monto fijo, retornar el valor directamente, pero no puede ser mayor que el total
+            return promotion.getValue().min(totalAmount);
         }
-        return totalAmount; // No hay descuento aplicado
+        return BigDecimal.ZERO; // No hay descuento aplicado
     }
 
 
