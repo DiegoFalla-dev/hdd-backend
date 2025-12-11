@@ -1,6 +1,7 @@
 package com.cineplus.cineplus.domain.service;
 
 import com.cineplus.cineplus.domain.dto.PromotionDTO;
+import com.cineplus.cineplus.domain.entity.PromotionValidationErrorType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,5 +29,13 @@ public interface PromotionService {
      * @param totalAmount El monto total de la compra.
      * @return true si la promoción es aplicable, false en caso contrario.
      */
-    boolean isValidPromotionForAmount(String promotionCode, BigDecimal totalAmount); // Necesita BigDecimal
+    boolean isValidPromotionForAmount(String promotionCode, BigDecimal totalAmount);
+    
+    /**
+     * Valida una promoción y retorna el tipo de error específico si no es válida.
+     * @param promotionCode El código de la promoción.
+     * @param totalAmount El monto total de la compra.
+     * @return El tipo de error de validación. Si es VALID, la promoción es aplicable.
+     */
+    PromotionValidationErrorType validatePromotionWithErrorType(String promotionCode, BigDecimal totalAmount);
 }

@@ -10,6 +10,8 @@ import com.cineplus.cineplus.domain.service.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
     private final OrderService orderService;
     private final OrderItemService orderItemService; // Para las operaciones específicas de OrderItem
 
@@ -35,7 +38,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasOrderId(authentication, #id)") // Admin o el usuario que hizo la orden
+    @PreAuthorize("isAuthenticated()") // Solo requiere estar autenticado
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id)
                 .map(ResponseEntity::ok)
@@ -43,7 +46,7 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #userId)") // Admin o el propio usuario
+    @PreAuthorize("isAuthenticated()") // Solo requiere estar autenticado
     public ResponseEntity<List<OrderDTO>> getOrdersByUserId(@PathVariable Long userId) {
         try {
             List<OrderDTO> orders = orderService.getOrdersByUserId(userId);
@@ -60,16 +63,13 @@ public class OrderController {
             OrderDTO createdOrder = orderService.createOrder(createOrderDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
         } catch (EntityNotFoundException e) {
-            System.err.println("EntityNotFoundException en createOrder: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Entity not found while creating order: {}", e.getMessage());
             return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
-            System.err.println("IllegalStateException en createOrder: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Illegal state while creating order: {}", e.getMessage());
             return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("Exception en createOrder: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Unexpected error while creating order", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of("error", "Error interno del servidor: " + e.getMessage()));
         }
     }

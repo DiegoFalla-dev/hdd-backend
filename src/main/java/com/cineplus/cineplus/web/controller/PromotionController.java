@@ -9,7 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/promotions")
@@ -36,6 +39,45 @@ public class PromotionController {
         return promotionService.getActivePromotionByCode(code)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Endpoint para validar una promoción contra un monto total.
+     * Responde con un objeto que incluye:
+     * - isValid: booleano indicando si la promoción es aplicable
+     * - errorType: tipo de error específico si no es válida
+     * - promotion: los detalles de la promoción (si es válida)
+     * - message: mensaje explicativo
+     */
+    @GetMapping("/validate")
+    public ResponseEntity<Map<String, Object>> validatePromotion(
+            @RequestParam String code,
+            @RequestParam BigDecimal amount) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        if (code == null || code.isEmpty()) {
+            response.put("isValid", false);
+            response.put("errorType", "PROMOTION_NOT_FOUND");
+            response.put("message", "Código de promoción requerido");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        // Obtener el tipo de error específico de validación
+        com.cineplus.cineplus.domain.entity.PromotionValidationErrorType errorType = promotionService.validatePromotionWithErrorType(code, amount);
+        
+        response.put("isValid", errorType == com.cineplus.cineplus.domain.entity.PromotionValidationErrorType.VALID);
+        response.put("errorType", errorType.name());
+        response.put("message", errorType.getMessage());
+        
+        if (errorType == com.cineplus.cineplus.domain.entity.PromotionValidationErrorType.VALID) {
+            // Si es válida, retornar también los detalles de la promoción
+            promotionService.getActivePromotionByCode(code).ifPresent(promo -> {
+                response.put("promotion", promo);
+            });
+        }
+        
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping

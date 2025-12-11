@@ -31,4 +31,10 @@ public class CreateOrderDTO {
     private List<CreateOrderConcessionDTO> concessions; // Opcional: concesiones/dulcería
 
     private String promotionCode; // Opcional: para aplicar un código de promoción
+
+    // Descuento por puntos de fidelización (opcional)
+    // fidelityPointsRedeemed: puntos que el usuario ya canjeó en un endpoint previo
+    // fidelityDiscountAmount: monto fijo en soles que debe descontarse al total (100 pts = S/10)
+    private Integer fidelityPointsRedeemed;
+    private java.math.BigDecimal fidelityDiscountAmount;
 }

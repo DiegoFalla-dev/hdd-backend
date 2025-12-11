@@ -3,9 +3,11 @@ package com.cineplus.cineplus.web.controller;
 import com.cineplus.cineplus.domain.dto.ConcessionProductDto;
 import com.cineplus.cineplus.domain.entity.ConcessionProduct;
 import com.cineplus.cineplus.domain.service.ConcessionProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,13 +42,15 @@ public class ConcessionProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ConcessionProductDto> createProduct(@RequestBody ConcessionProductDto productDto) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<ConcessionProductDto> createProduct(@Valid @RequestBody ConcessionProductDto productDto) {
         ConcessionProductDto createdProduct = concessionProductService.saveProduct(productDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ConcessionProductDto> updateProduct(@PathVariable Long id, @RequestBody ConcessionProductDto productDto) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<ConcessionProductDto> updateProduct(@PathVariable Long id, @Valid @RequestBody ConcessionProductDto productDto) {
         productDto.setId(id);
         return concessionProductService.findProductById(id)
                 .map(existingProduct -> ResponseEntity.ok(concessionProductService.saveProduct(productDto)))
@@ -54,6 +58,7 @@ public class ConcessionProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         if (concessionProductService.findProductById(id).isPresent()) {
             concessionProductService.deleteProduct(id);

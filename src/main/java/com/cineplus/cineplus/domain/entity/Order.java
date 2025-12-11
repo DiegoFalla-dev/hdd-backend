@@ -23,7 +23,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // Quién realizó la compra
 
@@ -33,7 +33,19 @@ public class Order {
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "subtotal_amount", precision = 10, scale = 2)
+    private BigDecimal subtotalAmount; // Subtotal SIN impuestos
+
+    @Column(name = "tax_amount", precision = 10, scale = 2)
+    private BigDecimal taxAmount; // IGV (18%)
+
+    @Column(name = "discount_amount", precision = 10, scale = 2)
+    private BigDecimal discountAmount; // Descuento general (si aplica)
+
+    @Column(name = "fidelity_discount_amount", precision = 10, scale = 2)
+    private BigDecimal fidelityDiscountAmount; // Descuento por fidelización
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "payment_method_id", nullable = false)
     private PaymentMethod paymentMethod; // Método de pago utilizado
 
@@ -56,7 +68,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderConcession> orderConcessions = new ArrayList<>(); // Concesiones (dulcería) de esta orden
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "promotion_id")
     private Promotion promotion; // Si solo se aplica un descuento por orden
 }

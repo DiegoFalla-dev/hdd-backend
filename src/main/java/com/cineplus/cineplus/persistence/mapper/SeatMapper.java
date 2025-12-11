@@ -13,7 +13,9 @@ public interface SeatMapper {
 
     SeatMapper INSTANCE = Mappers.getMapper(SeatMapper.class);
 
+    @Mapping(target = "code", source = "seatIdentifier") // Mapear seatIdentifier a code
     SeatDto toDto(Seat seat);
+    
     Seat toEntity(SeatDto seatDto);
     List<SeatDto> toDtoList(List<Seat> seats);
     List<Seat> toEntityList(List<SeatDto> seatDtos);

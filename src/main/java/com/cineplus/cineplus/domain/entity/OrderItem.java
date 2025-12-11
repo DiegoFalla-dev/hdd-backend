@@ -35,6 +35,9 @@ public class OrderItem {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price; // Precio individual de la entrada
 
+    @Column(name = "ticket_type", length = 50)
+    private String ticketType; // Tipo de entrada: ADULTO, NIÑO, etc.
+
     @Enumerated(EnumType.STRING)
     @Column(name = "ticket_status", nullable = false)
     private TicketStatus ticketStatus; // ENUM: VALID, USED, CANCELLED

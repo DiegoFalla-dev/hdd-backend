@@ -21,6 +21,8 @@ public interface OrderMapper {
     @Mapping(target = "user", source = "user")
     @Mapping(target = "paymentMethod", source = "paymentMethod", qualifiedBy = PaymentMethodMapping.class)
     @Mapping(target = "promotion", source = "promotion")
+    @Mapping(target = "discountAmount", source = "discountAmount")
+    @Mapping(target = "fidelityDiscountAmount", source = "fidelityDiscountAmount")
     @Mapping(target = "orderItems", source = "orderItems")
     @Mapping(target = "orderConcessions", source = "orderConcessions")
     OrderDTO toDto(Order order);

@@ -18,6 +18,10 @@ public class OrderDTO {
     private Long id;
     private UserDto user; // Podrías usar un UserSimpleDTO si solo necesitas el ID y nombre
     private LocalDateTime orderDate;
+    private BigDecimal subtotalAmount; // Subtotal SIN impuestos
+    private BigDecimal taxAmount; // IGV (18%)
+    private BigDecimal discountAmount; // Descuento general (si aplica)
+    private BigDecimal fidelityDiscountAmount; // Descuento por fidelización
     private BigDecimal totalAmount;
     private PaymentMethodDto paymentMethod; // O PaymentMethodSimpleDTO
     private OrderStatus orderStatus;

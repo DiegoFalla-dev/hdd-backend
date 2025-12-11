@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor; // Mantén este si lo usas en otros lugares
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -19,6 +20,10 @@ public class JwtResponseDto {
     private List<String> roles;
     private String type = "Bearer";
     private String favoriteCinema;
+    
+    // Información de fidelización
+    private Integer fidelityPoints;
+    private LocalDateTime lastPurchaseDate;
 
     // Constructor personalizado que usa el valor por defecto de 'type'
     public JwtResponseDto(String token, Long id, String username, String email, List<String> roles) {
@@ -38,5 +43,19 @@ public class JwtResponseDto {
         this.roles = roles;
         this.type = "Bearer";
         this.favoriteCinema = favoriteCinema;
+    }
+    
+    // Constructor con fidelización
+    public JwtResponseDto(String token, Long id, String username, String email, List<String> roles, 
+                         String favoriteCinema, Integer fidelityPoints, LocalDateTime lastPurchaseDate) {
+        this.token = token;
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.roles = roles;
+        this.type = "Bearer";
+        this.favoriteCinema = favoriteCinema;
+        this.fidelityPoints = fidelityPoints;
+        this.lastPurchaseDate = lastPurchaseDate;
     }
 }

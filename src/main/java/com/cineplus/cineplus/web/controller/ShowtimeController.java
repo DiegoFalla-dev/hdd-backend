@@ -4,11 +4,13 @@ import com.cineplus.cineplus.domain.dto.SeatDto;
 import com.cineplus.cineplus.domain.dto.ShowtimeDto;
 import com.cineplus.cineplus.domain.entity.Showtime.FormatType;
 import com.cineplus.cineplus.domain.service.ShowtimeService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -63,6 +65,7 @@ public class ShowtimeController {
 
     // POST /api/showtimes/{id}/seats/generate (Endpoint para generar asientos iniciales)
     @PostMapping("/{id}/seats/generate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<Void> generateSeats(@PathVariable Long id) {
         showtimeService.generateSeatsForShowtime(id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -110,14 +113,16 @@ public class ShowtimeController {
 
     // POST /api/showtimes
     @PostMapping
-    public ResponseEntity<ShowtimeDto> createShowtime(@RequestBody ShowtimeDto showtimeDto) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<ShowtimeDto> createShowtime(@Valid @RequestBody ShowtimeDto showtimeDto) {
         ShowtimeDto createdShowtime = showtimeService.saveShowtime(showtimeDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdShowtime);
     }
 
     // PUT /api/showtimes/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<ShowtimeDto> updateShowtime(@PathVariable Long id, @RequestBody ShowtimeDto showtimeDto) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<ShowtimeDto> updateShowtime(@PathVariable Long id, @Valid @RequestBody ShowtimeDto showtimeDto) {
         showtimeDto.setId(id);
         ShowtimeDto updatedShowtime = showtimeService.updateShowtime(showtimeDto);
         return ResponseEntity.ok(updatedShowtime);
@@ -125,6 +130,7 @@ public class ShowtimeController {
 
     // DELETE /api/showtimes/{id}
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteShowtime(@PathVariable Long id) {
         showtimeService.deleteShowtime(id);
         return ResponseEntity.noContent().build();
