@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.cineplus.cineplus.web.security.SessionActivityService;
 
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "https://hdd-frontend-production.up.railway.app", "https://hdd-backend-production.up.railway.app"})
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

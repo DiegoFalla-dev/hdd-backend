@@ -151,10 +151,10 @@ public class ShowtimeServiceImpl implements ShowtimeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Showtime not found."));
 
         // Normalizar identificadores (trim + uppercase) para evitar mismatches por formato
-        java.util.Set<String> normalized = seatIdentifiers.stream()
+        Set<String> normalized = seatIdentifiers.stream()
             .filter(s -> s != null)
             .map(s -> s.trim().toUpperCase())
-            .collect(java.util.stream.Collectors.toSet());
+            .collect(Collectors.toSet());
 
         // Intentar actualizar el estado de los asientos de AVAILABLE a TEMPORARILY_RESERVED
         int updatedCount = seatRepository.updateSeatStatusIfExpected(showtimeId, normalized, SeatStatus.TEMPORARILY_RESERVED, SeatStatus.AVAILABLE);

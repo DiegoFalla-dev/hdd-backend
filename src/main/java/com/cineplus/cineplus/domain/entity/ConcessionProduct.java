@@ -35,6 +35,9 @@ public class ConcessionProduct {
     @Column(nullable = false)
     private ProductCategory category;
 
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
+    private Boolean available = true;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "cinema_product",
