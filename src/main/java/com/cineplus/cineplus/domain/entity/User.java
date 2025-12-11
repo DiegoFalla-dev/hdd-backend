@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -64,10 +65,18 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PaymentMethod> paymentMethods = new HashSet<>();
 
+    // Fidelización
+    @Column(name = "fidelity_points", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer fidelityPoints = 0; // Puntos acumulados (1 punto cada S/.10 gastados)
+
+    @Column(name = "last_purchase_date")
+    private LocalDateTime lastPurchaseDate; // Fecha de última compra
+
     public User(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.fidelityPoints = 0;
     }
 }

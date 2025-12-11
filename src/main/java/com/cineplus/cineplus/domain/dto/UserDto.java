@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.List;
 
@@ -22,4 +23,8 @@ public class UserDto {
     private String avatar;
     private Set<String> roles;
     private List<PaymentMethodDto> paymentMethods;
+    
+    // Información de fidelización
+    private Integer fidelityPoints = 0;
+    private LocalDateTime lastPurchaseDate;
 }

@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,12 +41,14 @@ public class ConcessionProductController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<ConcessionProductDto> createProduct(@Valid @RequestBody ConcessionProductDto productDto) {
         ConcessionProductDto createdProduct = concessionProductService.saveProduct(productDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<ConcessionProductDto> updateProduct(@PathVariable Long id, @Valid @RequestBody ConcessionProductDto productDto) {
         productDto.setId(id);
         return concessionProductService.findProductById(id)
@@ -54,6 +57,7 @@ public class ConcessionProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         if (concessionProductService.findProductById(id).isPresent()) {
             concessionProductService.deleteProduct(id);

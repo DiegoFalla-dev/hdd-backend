@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,12 +37,14 @@ public class TheaterController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<TheaterDto> createTheater(@Valid @RequestBody TheaterDto theaterDto) {
         TheaterDto createdTheater = theaterService.saveTheater(theaterDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTheater);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<TheaterDto> updateTheater(@PathVariable Long id, @Valid @RequestBody TheaterDto theaterDto) {
         theaterDto.setId(id); // Asegura que el ID del DTO coincida con el PathVariable
         return theaterService.findTheaterById(id)
@@ -50,6 +53,7 @@ public class TheaterController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteTheater(@PathVariable Long id) {
         if (theaterService.findTheaterById(id).isPresent()) {
             theaterService.deleteTheater(id);

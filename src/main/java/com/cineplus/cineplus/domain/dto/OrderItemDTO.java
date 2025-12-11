@@ -18,6 +18,7 @@ public class OrderItemDTO {
     private ShowtimeDto showtime;
     private SeatDto seat;
     private BigDecimal price;
+    private String ticketType; // Tipo de entrada: ADULTO, NIÑO, etc.
     private TicketStatus ticketStatus;
     private String qrCodeTicketUrl;
     private String ticketPdfUrl;

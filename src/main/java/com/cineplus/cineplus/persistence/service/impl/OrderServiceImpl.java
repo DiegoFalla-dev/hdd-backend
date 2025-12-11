@@ -8,6 +8,9 @@ import com.cineplus.cineplus.domain.entity.*;
 import com.cineplus.cineplus.domain.repository.*;
 import com.cineplus.cineplus.domain.service.OrderService;
 import com.cineplus.cineplus.domain.service.PromotionService;
+import com.cineplus.cineplus.domain.service.InvoiceService;
+import com.cineplus.cineplus.domain.service.MailService;
+import com.cineplus.cineplus.domain.service.PriceCalculationUtil;
 import com.cineplus.cineplus.persistence.mapper.OrderItemMapper;
 import com.cineplus.cineplus.persistence.mapper.OrderMapper;
 import com.google.zxing.BarcodeFormat;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -52,6 +56,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemMapper orderItemMapper;
     private final PromotionService promotionService; // Para la validación de la lógica de negocio de promociones
     private final com.cineplus.cineplus.domain.service.TicketPriceService ticketPriceService;
+    private final InvoiceService invoiceService;
+    private final MailService mailService;
 
     private static final String QR_CODE_BASE_URL = "http://localhost:8080/api/tickets/"; // URL base para los tickets
 
@@ -76,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Método de pago no encontrado con ID: " + createOrderDTO.getPaymentMethodId()));
 
         List<OrderItem> newOrderItems = new ArrayList<>();
-        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal subtotal = BigDecimal.ZERO; // Cambiar a subtotal (sin IGV)
 
         // Validar y procesar cada item de la orden
         for (CreateOrderItemDTO itemDTO : createOrderDTO.getItems()) {
@@ -85,19 +91,32 @@ public class OrderServiceImpl implements OrderService {
             Seat seat = seatRepository.findById(itemDTO.getSeatId())
                     .orElseThrow(() -> new EntityNotFoundException("Asiento no encontrado con ID: " + itemDTO.getSeatId()));
 
-            // Lógica de validación: ¿El asiento está disponible para esta función?
-            // Podrías necesitar un método en SeatRepository para esto o verificar la relación directamente
-            // Por simplicidad, asumimos que showtime.getAvailableSeats() o una lista de asientos ocupados se puede verificar aquí
-            // Ejemplo: if (!seat.getShowtimes().contains(showtime) || !seatIsAvailable(seat, showtime)) ...
-
-            // Aquí se valida si el asiento ya está ocupado para esta función y si su ID está asociado a la función
+            // === VALIDACIONES MEJORADAS ===
+            
+            // 1. Validar que la función no haya pasado
+            LocalDateTime showtimeDateTime = LocalDateTime.of(showtime.getDate(), showtime.getTime());
+            if (showtimeDateTime.isBefore(LocalDateTime.now())) {
+                throw new IllegalStateException("La función ya ha pasado. No se pueden comprar entradas para funciones anteriores.");
+            }
+            
+            // 2. Validar que la función no sea en menos de 15 minutos (tiempo de procesamiento)
+            if (showtimeDateTime.isBefore(LocalDateTime.now().plusMinutes(15))) {
+                throw new IllegalStateException("No se pueden comprar entradas para funciones que comienzan en menos de 15 minutos.");
+            }
+            
+            // 3. Validar disponibilidad global de asientos
             if (showtime.getAvailableSeats() <= 0) {
                 throw new IllegalStateException("No hay asientos disponibles para la función con ID: " + showtime.getId());
             }
 
-            // Verificar si el asiento ya ha sido comprado para esta función
+            // 4. Verificar si el asiento ya ha sido comprado para esta función
             if (orderItemRepository.findByShowtimeAndSeatAndTicketStatus(showtime, seat, TicketStatus.VALID).isPresent()) {
                 throw new IllegalStateException("El asiento " + seat.getSeatIdentifier() + " ya está ocupado para la función " + showtime.getId());
+            }
+            
+            // 5. Validar que el asiento pertenezca a la sala de la función
+            if (!seat.getShowtime().getTheater().getId().equals(showtime.getTheater().getId())) {
+                throw new IllegalStateException("El asiento " + seat.getSeatIdentifier() + " no pertenece a la sala de esta función.");
             }
 
             // Reducir la disponibilidad de asientos
@@ -121,10 +140,11 @@ public class OrderServiceImpl implements OrderService {
                     .showtime(showtime)
                     .seat(seat)
                     .price(effectivePrice)
+                    .ticketType(itemDTO.getTicketType()) // Guardar el tipo de entrada
                     .ticketStatus(TicketStatus.VALID)
                     .build();
             newOrderItems.add(orderItem);
-            totalAmount = totalAmount.add(effectivePrice);
+            subtotal = subtotal.add(effectivePrice); // Agregar al subtotal
         }
 
         // Procesar concesiones (dulcería) si existen
@@ -133,6 +153,18 @@ public class OrderServiceImpl implements OrderService {
             for (CreateOrderConcessionDTO concessionDTO : createOrderDTO.getConcessions()) {
                 Product product = productRepository.findById(concessionDTO.getProductId())
                         .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + concessionDTO.getProductId()));
+                
+                // === VALIDACIONES DE INVENTARIO ===
+                
+                // 1. Validar que el producto esté activo
+                if (!product.getAvailable()) {
+                    throw new IllegalStateException("El producto '" + product.getName() + "' no está disponible para la venta.");
+                }
+                
+                // 2. Validar cantidad solicitada
+                if (concessionDTO.getQuantity() <= 0) {
+                    throw new IllegalArgumentException("La cantidad del producto debe ser mayor a 0.");
+                }
                 
                 BigDecimal totalPrice = concessionDTO.getUnitPrice().multiply(BigDecimal.valueOf(concessionDTO.getQuantity()));
                 
@@ -143,19 +175,22 @@ public class OrderServiceImpl implements OrderService {
                         .totalPrice(totalPrice)
                         .build();
                 newOrderConcessions.add(orderConcession);
-                totalAmount = totalAmount.add(totalPrice);
+                subtotal = subtotal.add(totalPrice); // Agregar al subtotal
             }
         }
 
+        // === APLICACIÓN DE DESCUENTOS Y CÁLCULO DE IGV ===
+        BigDecimal discountAmount = BigDecimal.ZERO;
         Promotion appliedPromotion = null;
+        
         if (createOrderDTO.getPromotionCode() != null && !createOrderDTO.getPromotionCode().isEmpty()) {
             // Verificar si la promoción es válida y aplicable
-            if (promotionService.isValidPromotionForAmount(createOrderDTO.getPromotionCode(), totalAmount)) {
+            if (promotionService.isValidPromotionForAmount(createOrderDTO.getPromotionCode(), subtotal)) {
                 // Obtener la entidad Promotion (no el DTO)
                 Optional<Promotion> promoEntityOpt = promotionRepository.findByCode(createOrderDTO.getPromotionCode());
                 if (promoEntityOpt.isPresent()) {
                     appliedPromotion = promoEntityOpt.get();
-                    totalAmount = applyPromotionDiscount(totalAmount, appliedPromotion);
+                    discountAmount = applyPromotionDiscount(subtotal, appliedPromotion);
                     // Incrementar el contador de usos de la promoción
                     appliedPromotion.setCurrentUses(appliedPromotion.getCurrentUses() + 1);
                     promotionRepository.save(appliedPromotion); // Guardar la promoción actualizada
@@ -165,12 +200,18 @@ public class OrderServiceImpl implements OrderService {
                 System.out.println("Promoción no válida o no aplicable: " + createOrderDTO.getPromotionCode());
             }
         }
+        
+        // Usar la utilidad centralizada de cálculo
+        PriceCalculationUtil.PriceBreakdown breakdown = PriceCalculationUtil.calculatePriceBreakdown(subtotal, discountAmount);
+        BigDecimal totalAmount = breakdown.getGrandTotal(); // Total CON IGV
 
         // Crear la entidad Order
         Order order = Order.builder()
                 .user(user)
                 .orderDate(LocalDateTime.now())
-                .totalAmount(totalAmount)
+                .subtotalAmount(subtotal) // Guardar el subtotal
+                .taxAmount(breakdown.getTaxAmount()) // Guardar el IGV
+                .totalAmount(totalAmount) // Total CON IGV
                 .paymentMethod(paymentMethod)
                 .orderStatus(OrderStatus.COMPLETED) // O PENDING si hay un proceso de confirmación de pago
                 .invoiceNumber(UUID.randomUUID().toString().substring(0, 8).toUpperCase()) // Generar un número de factura simple
@@ -190,6 +231,18 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order savedOrder = orderRepository.save(order);
+
+        // --- SISTEMA DE FIDELIZACIÓN ---
+        // Calcular puntos: 1 punto cada S/. 10 gastados (usando el total con IGV)
+        Integer pointsEarned = totalAmount.divide(BigDecimal.TEN, RoundingMode.DOWN).intValue();
+        user.setFidelityPoints(user.getFidelityPoints() + pointsEarned);
+        user.setLastPurchaseDate(LocalDateTime.now());
+        userRepository.save(user);
+        
+        // Log de puntos agregados
+        if (pointsEarned > 0) {
+            System.out.println("Puntos de fidelización: " + pointsEarned + " puntos agregados al usuario " + user.getId());
+        }
 
         // Persistir líneas de precio de tickets agrupando por showtimeId + unitPrice
         try {
@@ -263,6 +316,32 @@ public class OrderServiceImpl implements OrderService {
             System.err.println("Error al generar PDF de factura para Order " + savedOrder.getId() + ": " + e.getMessage());
         }
 
+        // --- GENERACIÓN DE FACTURA SIMULADA (SUNAT MOCK) ---
+        try {
+            InvoiceService.InvoiceResult invoiceResult = invoiceService.generateInvoice(
+                savedOrder.getId(),
+                "20123456789",  // RUC empresa
+                "B001"          // Serie
+            );
+            
+            if (invoiceResult.success) {
+                // Guardar número de factura en la orden
+                savedOrder.setInvoiceNumber(invoiceResult.invoiceNumber);
+                orderRepository.save(savedOrder);
+                System.out.println("[ORDER] ✓ Factura generada: " + invoiceResult.invoiceNumber);
+                System.out.println("[ORDER] QR Data: " + invoiceResult.qrCode);
+            }
+        } catch (Exception e) {
+            System.err.println("[ORDER-ERROR] No se pudo generar factura: " + e.getMessage());
+        }
+
+        // --- ENVÍO DE EMAIL DE CONFIRMACIÓN ---
+        try {
+            mailService.sendOrderConfirmation(savedOrder);
+            System.out.println("[ORDER] ✓ Email de confirmación enviado a " + user.getEmail());
+        } catch (Exception e) {
+            System.err.println("[ORDER-ERROR] No se pudo enviar email de confirmación: " + e.getMessage());
+        }
 
         return orderMapper.toDto(savedOrder);
     }

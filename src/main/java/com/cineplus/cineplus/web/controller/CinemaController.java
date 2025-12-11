@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,12 +32,14 @@ public class CinemaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<CinemaDto> createCinema(@Valid @RequestBody CinemaDto cinemaDto) {
         CinemaDto createdCinema = cinemaService.saveCinema(cinemaDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCinema);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<CinemaDto> updateCinema(@PathVariable Long id, @Valid @RequestBody CinemaDto cinemaDto) {
         cinemaDto.setId(id);
         return cinemaService.findCinemaById(id)
@@ -45,6 +48,7 @@ public class CinemaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCinema(@PathVariable Long id) {
         if (cinemaService.findCinemaById(id).isPresent()) {
             cinemaService.deleteCinema(id);

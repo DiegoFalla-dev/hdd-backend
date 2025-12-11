@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import com.cineplus.cineplus.domain.entity.MovieStatus;
@@ -64,12 +65,14 @@ public class MovieController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<MovieDto> createMovie(@Valid @RequestBody MovieDto movieDto) {
         MovieDto createdMovie = movieService.saveMovie(movieDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMovie);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<MovieDto> updateMovie(@PathVariable Long id, @Valid @RequestBody MovieDto movieDto) {
         // En una actualización, el ID del DTO podría no coincidir con el PathVariable.
         // Aseguramos que el ID correcto sea el del PathVariable.
@@ -80,6 +83,7 @@ public class MovieController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
         if (movieService.findMovieById(id).isPresent()) {
             movieService.deleteMovie(id);

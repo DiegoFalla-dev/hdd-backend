@@ -33,6 +33,12 @@ public class Order {
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
+    @Column(name = "subtotal_amount", precision = 10, scale = 2)
+    private BigDecimal subtotalAmount; // Subtotal SIN impuestos
+
+    @Column(name = "tax_amount", precision = 10, scale = 2)
+    private BigDecimal taxAmount; // IGV (18%)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_method_id", nullable = false)
     private PaymentMethod paymentMethod; // Método de pago utilizado
