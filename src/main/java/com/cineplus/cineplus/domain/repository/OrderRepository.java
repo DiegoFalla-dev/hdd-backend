@@ -4,6 +4,7 @@ import com.cineplus.cineplus.domain.entity.Order;
 import com.cineplus.cineplus.domain.entity.OrderStatus;
 import com.cineplus.cineplus.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -27,4 +28,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Buscar órdenes dentro de un rango de fechas
     List<Order> findByOrderDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    // Agregar totales diarios de ventas
+    @Query("SELECT CAST(o.orderDate AS DATE) as day, SUM(o.totalAmount) as total " +
+           "FROM Order o " +
+           "WHERE o.orderStatus = com.cineplus.cineplus.domain.entity.OrderStatus.COMPLETED " +
+           "GROUP BY CAST(o.orderDate AS DATE) " +
+           "ORDER BY CAST(o.orderDate AS DATE) DESC")
+    List<DailyTotalProjection> aggregateDailyTotals();
 }
