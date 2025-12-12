@@ -1,7 +1,9 @@
 package com.cineplus.cineplus.persistence.mapper;
 
+import com.cineplus.cineplus.domain.dto.CinemaDto;
 import com.cineplus.cineplus.domain.dto.PaymentMethodDto;
 import com.cineplus.cineplus.domain.dto.UserDto;
+import com.cineplus.cineplus.domain.entity.Cinema;
 import com.cineplus.cineplus.domain.entity.PaymentMethod;
 import com.cineplus.cineplus.domain.entity.Role;
 import com.cineplus.cineplus.domain.entity.User;
@@ -30,6 +32,15 @@ public interface UserMapper {
     @Mapping(source = "isTwoFactorEnabled", target = "isTwoFactorEnabled")
     @Mapping(source = "activationTokenExpiry", target = "activationTokenExpiry")
     UserDto toDto(User user);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "city", target = "city")
+    @Mapping(source = "address", target = "address")
+    @Mapping(source = "location", target = "location")
+    @Mapping(source = "availableFormats", target = "availableFormats")
+    @Mapping(source = "image", target = "image")
+    CinemaDto cinemaToCinemaDto(Cinema cinema);
 
     // Helpers
     @Named("mapRolesToStrings")

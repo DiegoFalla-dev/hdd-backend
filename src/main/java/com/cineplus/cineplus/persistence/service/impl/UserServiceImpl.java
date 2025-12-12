@@ -153,6 +153,14 @@ public class UserServiceImpl implements UserService {
                 user.setGender(userDto.getGender());
             }
 
+            if (userDto.getFidelityPoints() != null) {
+                user.setFidelityPoints(userDto.getFidelityPoints());
+            }
+
+            if (userDto.getLastPurchaseDate() != null) {
+                user.setLastPurchaseDate(userDto.getLastPurchaseDate());
+            }
+
             // Actualizar número de celular si se proporciona
             if (userDto.getPhoneNumber() != null && !userDto.getPhoneNumber().isEmpty()) {
                 user.setPhoneNumber(userDto.getPhoneNumber());
@@ -165,6 +173,30 @@ public class UserServiceImpl implements UserService {
 
             if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
                 user.setRoles(getRolesFromNames(userDto.getRoles()));
+            }
+
+            if (userDto.getIsActive() != null) {
+                user.setIsActive(userDto.getIsActive());
+            }
+
+            if (userDto.getIsValid() != null) {
+                user.setIsValid(userDto.getIsValid());
+            }
+
+            if (userDto.getIsTwoFactorEnabled() != null) {
+                user.setIsTwoFactorEnabled(userDto.getIsTwoFactorEnabled());
+            }
+
+            if (userDto.getActivationTokenExpiry() != null) {
+                user.setActivationTokenExpiry(userDto.getActivationTokenExpiry());
+            }
+
+            if (userDto.getRuc() != null) {
+                user.setRuc(userDto.getRuc());
+            }
+
+            if (userDto.getRazonSocial() != null) {
+                user.setRazonSocial(userDto.getRazonSocial());
             }
 
             return toDto(userRepository.save(user));

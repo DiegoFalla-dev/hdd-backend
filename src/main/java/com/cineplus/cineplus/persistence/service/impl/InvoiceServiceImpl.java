@@ -104,26 +104,24 @@ public class InvoiceServiceImpl implements InvoiceService {
             // Obtenemos todas las órdenes y buscamos la que tiene el invoiceNumber más alto
             // En producción, usaríamos una query SQL más eficiente
             long maxSequence = 0;
-            
-            // Query: SELECT MAX(CAST(SUBSTRING(invoice_number, LENGTH(series)+2) AS UNSIGNED)) 
+
+            // Query: SELECT MAX(CAST(SUBSTRING(invoice_number, LENGTH(series)+2) AS UNSIGNED))
             // FROM orders WHERE invoice_number LIKE 'B001-%'
             // Por simplicidad, iteramos (esto se puede optimizar)
-            long[] maxSeq = {maxSequence};
-            orderRepository.findAll().forEach(order -> {
+            for (var order : orderRepository.findAll()) {
                 if (order.getInvoiceNumber() != null && order.getInvoiceNumber().startsWith(prefix)) {
                     try {
                         String numPart = order.getInvoiceNumber().substring(prefix.length());
                         long seq = Long.parseLong(numPart);
-                        if (seq > maxSeq[0]) {
-                            maxSeq[0] = seq;
+                        if (seq > maxSequence) {
+                            maxSequence = seq;
                         }
                     } catch (NumberFormatException e) {
                         // Ignorar si no puede parsear
                     }
                 }
-            });
-            maxSequence = maxSeq[0];
-            
+            }
+
             return maxSequence;
         } catch (Exception e) {
             log.warn("[INVOICE] Error obteniendo última secuencia de factura: {}", e.getMessage());

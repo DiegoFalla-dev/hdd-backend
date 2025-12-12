@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "https://hdd-frontend-production.up.railway.app", "https://hdd-backend-production.up.railway.app"})
+// @CrossOrigin removed, now global CORS config is used
 @RestController
 @RequestMapping("/api/cinemas")
 @RequiredArgsConstructor

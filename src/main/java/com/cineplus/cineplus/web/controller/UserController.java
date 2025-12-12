@@ -4,10 +4,8 @@ import com.cineplus.cineplus.domain.dto.NameDto;
 import com.cineplus.cineplus.domain.dto.OrderDTO;
 import com.cineplus.cineplus.domain.dto.UserDto;
 import com.cineplus.cineplus.domain.entity.User;
-import com.cineplus.cineplus.domain.repository.UserRepository;
 import com.cineplus.cineplus.domain.service.OrderService;
 import com.cineplus.cineplus.domain.service.UserService;
-import com.cineplus.cineplus.persistence.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "https://hdd-frontend-production.up.railway.app", "https://hdd-backend-production.up.railway.app"})
+// @CrossOrigin removed, now global CORS config is used
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -27,8 +25,6 @@ public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final OrderService orderService;
-    private final UserMapper userMapper;
-    private final UserRepository userRepository;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -144,27 +140,20 @@ public class UserController {
 
             return userService.findById(id)
                     .map(user -> {
-                        // Handle null fidelityPoints
-                        Integer currentPoints = user.getFidelityPoints();
-                        if (currentPoints == null) {
-                            currentPoints = 0;
-                            user.setFidelityPoints(0);
-                        }
-                        
-                        if (currentPoints < pointsToRedeem) {
+                        if (user.getFidelityPoints() < pointsToRedeem) {
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(java.util.Map.of(
                                     "success", false,
                                     "message", "Puntos insuficientes para canjear",
-                                    "availablePoints", currentPoints
+                                    "availablePoints", user.getFidelityPoints()
                             ));
                         }
 
                         // Calcular descuento: 100 puntos = S/ 10
                         double discountAmount = (pointsToRedeem / 100.0) * 10.0;
                         
-                        // Restar los puntos y guardar
-                        user.setFidelityPoints(currentPoints - pointsToRedeem);
-                        userRepository.save(user);
+                        // Restar los puntos
+                        user.setFidelityPoints(user.getFidelityPoints() - pointsToRedeem);
+                        userService.updateUser(id, new UserDto(user)).orElse(new UserDto());
 
                         log.info("Usuario {} canjeó {} puntos por S/ {} de descuento", 
                                 id, pointsToRedeem, String.format("%.2f", discountAmount));
@@ -181,11 +170,9 @@ public class UserController {
 
         } catch (Exception e) {
             log.error("Error canjeando puntos para usuario {}", id, e);
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of(
                     "success", false,
-                    "message", "Error al canjear puntos",
-                    "error", e.getMessage()
+                    "message", "Error al canjear puntos"
             ));
         }
     }
@@ -214,49 +201,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of(
                     "success", false,
                     "message", "Error al validar cuenta de usuario",
-                    "error", e.getMessage()
-            ));
-        }
-    }
-
-    /**
-     * Actualiza los datos de facturación (RUC y Razón Social) del usuario
-     * @param id ID del usuario
-     * @param request Objeto con ruc y razonSocial
-     * @return Respuesta indicando éxito o error
-     */
-    @PatchMapping("/{id}/billing-info")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> updateBillingInfo(@PathVariable Long id, @RequestBody java.util.Map<String, String> request) {
-        try {
-            String ruc = request.get("ruc");
-            String razonSocial = request.get("razonSocial");
-            
-            if (ruc == null || ruc.trim().isEmpty() || razonSocial == null || razonSocial.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(java.util.Map.of(
-                        "success", false,
-                        "message", "RUC y Razón Social no pueden estar vacíos"
-                ));
-            }
-            
-            return userService.findById(id)
-                    .map(user -> {
-                        user.setRuc(ruc.trim());
-                        user.setRazonSocial(razonSocial.trim());
-                        userRepository.save(user);
-                        
-                        log.info("Usuario {} actualizó información de facturación", id);
-                        return ResponseEntity.ok(java.util.Map.of(
-                                "success", true,
-                                "message", "Información de facturación actualizada exitosamente"
-                        ));
-                    })
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            log.error("Error actualizando información de facturación para usuario {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of(
-                    "success", false,
-                    "message", "Error al actualizar información de facturación",
                     "error", e.getMessage()
             ));
         }

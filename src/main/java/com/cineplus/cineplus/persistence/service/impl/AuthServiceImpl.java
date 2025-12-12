@@ -122,17 +122,16 @@ public class AuthServiceImpl implements AuthService {
             });
         }
         user.setRoles(roles);
-        
-        // Set favorite cinema if provided
+
+        // Intentar asignar cine favorito si se envía un id válido
         if (registerRequest.getFavoriteCinema() != null && !registerRequest.getFavoriteCinema().isBlank()) {
             try {
-                Long cinemaId = Long.parseLong(registerRequest.getFavoriteCinema());
+                Long cinemaId = Long.valueOf(registerRequest.getFavoriteCinema());
                 cinemaRepository.findById(cinemaId).ifPresent(user::setFavoriteCinemaEntity);
-            } catch (NumberFormatException e) {
-                // If not a valid ID, ignore
+            } catch (NumberFormatException ignored) {
+                // Si no se puede parsear, ignoramos para no romper el registro
             }
         }
-        
         userRepository.save(user);
     }
 
@@ -159,8 +158,9 @@ public class AuthServiceImpl implements AuthService {
 
         // Fetch user entity to include favoriteCinema in the response
         User userEntity = userRepository.findByUsername(userDetails.getUsername()).orElse(null);
-        String fav = userEntity != null && userEntity.getFavoriteCinemaEntity() != null ? 
-                    userEntity.getFavoriteCinemaEntity().getId().toString() : null;
+        String fav = (userEntity != null && userEntity.getFavoriteCinemaEntity() != null)
+            ? userEntity.getFavoriteCinemaEntity().getName()
+            : null;
 
         return new JwtResponseDto(jwt,
             userDetails.getId(),
@@ -188,10 +188,11 @@ public class AuthServiceImpl implements AuthService {
         // Create authentication principal manually (lightweight) to reuse generation logic
         UserDetailsImpl principal = UserDetailsImpl.build(user);
         String newAccessToken = jwtUtils.generateTokenFromUsername(principal.getUsername());
-        List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(java.util.stream.Collectors.toList());
         User userEntity = userRepository.findByUsername(principal.getUsername()).orElse(null);
-        String fav = userEntity != null && userEntity.getFavoriteCinemaEntity() != null ? 
-                    userEntity.getFavoriteCinemaEntity().getId().toString() : null;
+        String fav = (userEntity != null && userEntity.getFavoriteCinemaEntity() != null)
+            ? userEntity.getFavoriteCinemaEntity().getName()
+            : null;
         return new JwtResponseDto(newAccessToken, principal.getId(), principal.getUsername(), principal.getEmail(), roles, fav);
     }
 }
