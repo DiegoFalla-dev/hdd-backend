@@ -1,19 +1,20 @@
 package com.cineplus.cineplus;
 
-import com.cineplus.cineplus.domain.entity.Role;
+import com.cineplus.cineplus.domain.entity.*;
 import com.cineplus.cineplus.domain.entity.Role.RoleName;
 import com.cineplus.cineplus.domain.repository.RoleRepository;
 import com.cineplus.cineplus.domain.repository.ShowtimeRepository;
 import com.cineplus.cineplus.domain.repository.TicketTypeRepository;
 import com.cineplus.cineplus.domain.repository.CinemaRepository;
 import com.cineplus.cineplus.domain.repository.ConcessionProductRepository;
-import com.cineplus.cineplus.domain.entity.TicketType;
-import com.cineplus.cineplus.domain.entity.Cinema;
-import com.cineplus.cineplus.domain.entity.ConcessionProduct;
+import com.cineplus.cineplus.domain.entity.MovieStatus;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -28,11 +29,12 @@ public class DataLoader implements CommandLineRunner {
     private final TicketTypeRepository ticketTypeRepository;
     private final CinemaRepository cinemaRepository;
     private final ConcessionProductRepository concessionProductRepository;
+    private final com.cineplus.cineplus.domain.repository.MovieRepository movieRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        // Asegúrate de que los roles existan
+        // Asegúrate de que los roles existan (Lógica correcta, sin cambios)
         if (roleRepository.findByName(RoleName.ROLE_ADMIN).isEmpty()) {
             roleRepository.save(new Role(null, RoleName.ROLE_ADMIN));
         }
@@ -43,9 +45,7 @@ public class DataLoader implements CommandLineRunner {
             roleRepository.save(new Role(null, RoleName.ROLE_USER));
         }
 
-
-
-        // Seed default ticket types if none exist
+        // Seed default ticket types if none exist (Lógica correcta, sin cambios)
         try {
             if (ticketTypeRepository.count() == 0) {
                 ticketTypeRepository.saveAll(java.util.List.of(
@@ -53,23 +53,26 @@ public class DataLoader implements CommandLineRunner {
                         TicketType.builder().code("PERSONA_CON_DISCAPACIDAD").name("PERSONA CON DISCAPACIDAD").price(BigDecimal.valueOf(17.70)).active(true).build(),
                         TicketType.builder().code("SILLA_DE_RUEDAS").name("SILLA DE RUEDAS").price(BigDecimal.valueOf(17.70)).active(true).build(),
                         TicketType.builder().code("NINO").name("NIÑO").price(BigDecimal.valueOf(21.60)).active(true).build(),
-                        TicketType.builder().code("ADULTO").name("ADULTO").price(BigDecimal.valueOf(23.60)).active(true).build(),
-                        TicketType.builder().code("50_DCTO_BANCO_RIPLEY").name("50% DCTO BANCO RIPLEY").price(BigDecimal.valueOf(12.80)).active(true).build()
+                        TicketType.builder().code("ADULTO").name("ADULTO").price(BigDecimal.valueOf(23.60)).active(true).build()
                 ));
             }
         } catch (Exception ex) {
             System.err.println("DataLoader: error seeding ticket types: " + ex.getMessage());
         }
 
-        // Load Cinemas if they don't exist
+        // --- INICIO DE CAMBIOS ---
+
+        // Recomendación: Cargar Cinemas si no existen (manteniendo el chequeo de count para evitar recrear salas)
         if (cinemaRepository.count() == 0) {
             loadCinemas();
         }
 
-        // Load Concession Products if they don't exist
-        if (concessionProductRepository.count() == 0) {
-            loadConcessionProducts();
-        }
+        // Recomendación: Llama a los métodos de carga de productos y películas directamente
+        // Ellos tienen la lógica de "si ya existe, no lo guardes"
+        loadConcessionProducts();
+        loadMovies();
+
+        // --- FIN DE CAMBIOS ---
     }
 
     private void loadCinemas() {
@@ -81,7 +84,7 @@ public class DataLoader implements CommandLineRunner {
         cinema1.setAddress("Av. América Sur 1111, Trujillo");
         cinema1.setLocation("Real Plaza Trujillo");
         cinema1.setAvailableFormats(Arrays.asList("2D"));
-        cinema1.setImage(null);
+        cinema1.setImage("https://i.imgur.com/EyXfJf3.png");
         cinemas.add(cinema1);
 
         Cinema cinema2 = new Cinema();
@@ -150,285 +153,129 @@ public class DataLoader implements CommandLineRunner {
         cinemaRepository.saveAll(cinemas);
     }
 
+    // --- MÉTODO OPTIMIZADO PARA PRODUCTOS ---
     private void loadConcessionProducts() {
         // Get all cinemas
         java.util.List<Cinema> allCinemas = cinemaRepository.findAll();
         Set<Cinema> cinemaSet = new HashSet<>(allCinemas);
 
-        // COMBOS
-        ConcessionProduct combo1 = new ConcessionProduct();
-        combo1.setName("Combo Caliente");
-        combo1.setDescription("Canchita grande + Gaseosa grande + Hot dog");
-        combo1.setPrice(BigDecimal.valueOf(50.20));
-        combo1.setImageUrl("https://i.imgur.com/3QXTlTP.png");
-        combo1.setCategory(ConcessionProduct.ProductCategory.COMBOS);
-        combo1.setCinemas(cinemaSet);
+        // Define all products
+        java.util.List<ConcessionProduct> productsToLoad = java.util.Arrays.asList(
+                // COMBOS
+                buildProduct("Combo Caliente", "Canchita grande + Gaseosa grande + Hot dog", BigDecimal.valueOf(50.20), "https://i.imgur.com/3QXTlTP.png", ConcessionProduct.ProductCategory.COMBOS, cinemaSet),
+                buildProduct("Combo Sal", "Canchita mediana + Gaseosa grande + Nachos", BigDecimal.valueOf(48.30), "https://i.imgur.com/mn8MkFr.png", ConcessionProduct.ProductCategory.COMBOS, cinemaSet),
+                buildProduct("Combo Familiar", "4 Canchitas grandes + 3 Gaseosas grandes", BigDecimal.valueOf(149.00), "https://i.imgur.com/8mqvkF4.png", ConcessionProduct.ProductCategory.COMBOS, cinemaSet),
+                buildProduct("Combo Dulce", "Canchita grande dulce + Frugos + Nuggets x6", BigDecimal.valueOf(47.40), "https://i.imgur.com/E9ZykEX.png", ConcessionProduct.ProductCategory.COMBOS, cinemaSet),
+                buildProduct("Combo Pareja", "2 Canchitas medianas + 2 Gaseosas grandes", BigDecimal.valueOf(69.90), "https://i.imgur.com/dkPseQ3.png", ConcessionProduct.ProductCategory.COMBOS, cinemaSet),
+                buildProduct("Combo Burger Premium", "Canchita gigante + 2 Gaseosas grandes + Hamburguesa", BigDecimal.valueOf(35.90), "https://i.imgur.com/4f5OE64.png", ConcessionProduct.ProductCategory.COMBOS, cinemaSet),
+                // CANCHITA
+                buildProduct("Canchita Gigante Salada", "Porción gigante de canchita con sal", BigDecimal.valueOf(34.90), "https://i.imgur.com/6X0TjP9.png", ConcessionProduct.ProductCategory.CANCHITA, cinemaSet),
+                buildProduct("Canchita Grande Salada", "Porción grande de canchita con sal", BigDecimal.valueOf(29.90), "https://i.imgur.com/yoalqQt.png", ConcessionProduct.ProductCategory.CANCHITA, cinemaSet),
+                buildProduct("Canchita Grande Dulce", "Porción grande de canchita dulce", BigDecimal.valueOf(31.90), "https://i.imgur.com/4BCV5nd.png", ConcessionProduct.ProductCategory.CANCHITA, cinemaSet),
+                buildProduct("Canchita Mediana Salada", "Porción mediana de canchita con sal", BigDecimal.valueOf(26.90), "https://i.imgur.com/uJlVCc9.png", ConcessionProduct.ProductCategory.CANCHITA, cinemaSet),
+                buildProduct("Canchita Mediana Dulce", "Porción mediana de canchita dulce", BigDecimal.valueOf(27.90), "https://i.imgur.com/UCS4p8y.png", ConcessionProduct.ProductCategory.CANCHITA, cinemaSet),
+                buildProduct("Canchita Kids Salada", "Porción Kids de canchita con sal", BigDecimal.valueOf(11.90), "https://i.imgur.com/JBRSxds.png", ConcessionProduct.ProductCategory.CANCHITA, cinemaSet),
+                buildProduct("Canchita Kids Dulce", "Canchita Kids dulce", BigDecimal.valueOf(12.90), "https://i.imgur.com/Nu0Ow6U.png", ConcessionProduct.ProductCategory.CANCHITA, cinemaSet),
+                buildProduct("Canchita Mantequilla", "Canchita grande con mantequilla", BigDecimal.valueOf(31.90), "https://i.imgur.com/oSnb1b2.png", ConcessionProduct.ProductCategory.CANCHITA, cinemaSet),
+                // BEBIDAS
+                buildProduct("Coca Cola Grande", "Coca Cola 500ml", BigDecimal.valueOf(11.90), "https://i.imgur.com/H0od7eK.png", ConcessionProduct.ProductCategory.BEBIDAS, cinemaSet),
+                buildProduct("Inca Kola Grande", "Inca Kola 500ml", BigDecimal.valueOf(11.90), "https://i.imgur.com/nUkZc3u.png", ConcessionProduct.ProductCategory.BEBIDAS, cinemaSet),
+                buildProduct("Sprite Grande", "Sprite 500ml", BigDecimal.valueOf(11.90), "https://i.imgur.com/YrRj40A.png", ConcessionProduct.ProductCategory.BEBIDAS, cinemaSet),
+                buildProduct("Jugo de Naranja", "Jugo natural de naranja 400ml", BigDecimal.valueOf(11.90), "https://i.imgur.com/1gzH5cZ.png", ConcessionProduct.ProductCategory.BEBIDAS, cinemaSet),
+                buildProduct("Frugos del valle", "Frugos 300ml", BigDecimal.valueOf(6.90), "https://i.imgur.com/wPEQYeE.png", ConcessionProduct.ProductCategory.BEBIDAS, cinemaSet),
+                buildProduct("Agua con Gas", "Agua mineral con gas 500ml", BigDecimal.valueOf(6.90), "https://i.imgur.com/2S1tlC6.png", ConcessionProduct.ProductCategory.BEBIDAS, cinemaSet),
+                buildProduct("Agua Sin Gas", "Agua mineral 500ml", BigDecimal.valueOf(5.90), "https://i.imgur.com/kAjLTU3.png", ConcessionProduct.ProductCategory.BEBIDAS, cinemaSet),
+                // SNACKS
+                buildProduct("Hot Dog Frankfurter", "Hot dog con salchicha alemana y salsas", BigDecimal.valueOf(13.90), "https://i.imgur.com/vgYqN6n.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Nachos con Queso", "Nachos crujientes con salsa de queso", BigDecimal.valueOf(14.90), "https://i.imgur.com/fmBuiPG.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Papas Fritas", "Papas fritas crujientes porción grande", BigDecimal.valueOf(7.90), "https://i.imgur.com/X5f8YC9.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Tequeños x4 un", "4 tequeños de queso fritos", BigDecimal.valueOf(10.90), "https://i.imgur.com/bDMNPBk.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Nuggets x6", "6 nuggets de pollo crujientes", BigDecimal.valueOf(13.90), "https://i.imgur.com/MtnELKD.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Salchipapas", "Papas fritas con salchicha y salsas", BigDecimal.valueOf(14.90), "https://i.imgur.com/aF0NUuv.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Hamburguesa Clásica", "Hamburguesa con carne, lechuga y tomate", BigDecimal.valueOf(16.90), "https://i.imgur.com/8U3R1Oa.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Pizza Personal", "Pizza individual de pepperoni", BigDecimal.valueOf(18.90), "https://i.imgur.com/oMEqVGb.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Sandwich Club", "Sandwich triple con pollo, tocino y verduras", BigDecimal.valueOf(16.90), "https://i.imgur.com/jwVxk1i.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Alitas BBQ x7", "7 alitas de pollo con salsa BBQ", BigDecimal.valueOf(18.90), "https://i.imgur.com/cXOORTE.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Quesadilla", "Quesadilla de queso con guacamole", BigDecimal.valueOf(15.90), "https://i.imgur.com/oK4ZOoP.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet),
+                buildProduct("Wrap de Pollo", "Wrap con pollo, lechuga y salsa ranch", BigDecimal.valueOf(19.90), "https://i.imgur.com/VwpHY4O.png", ConcessionProduct.ProductCategory.SNACKS, cinemaSet)
+        );
 
-        ConcessionProduct combo2 = new ConcessionProduct();
-        combo2.setName("Combo Sal");
-        combo2.setDescription("Canchita mediana + Gaseosa grande + Nachos");
-        combo2.setPrice(BigDecimal.valueOf(48.30));
-        combo2.setImageUrl("https://i.imgur.com/mn8MkFr.png");
-        combo2.setCategory(ConcessionProduct.ProductCategory.COMBOS);
-        combo2.setCinemas(cinemaSet);
+        // 1. Obtener todos los nombres de productos existentes de forma eficiente
+        Set<String> existingProductNames = concessionProductRepository.findAll().stream()
+                .map(ConcessionProduct::getName)
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
 
-        ConcessionProduct combo3 = new ConcessionProduct();
-        combo3.setName("Combo Familiar");
-        combo3.setDescription("4 Canchitas grandes + 3 Gaseosas grandes");
-        combo3.setPrice(BigDecimal.valueOf(149.00));
-        combo3.setImageUrl("https://i.imgur.com/8mqvkF4.png");
-        combo3.setCategory(ConcessionProduct.ProductCategory.COMBOS);
-        combo3.setCinemas(cinemaSet);
+        // 2. Filtrar los productos que no existen
+        List<ConcessionProduct> productsToSave = productsToLoad.stream()
+                .filter(p -> !existingProductNames.contains(p.getName().toLowerCase()))
+                .peek(p -> p.setAvailable(true)) // Asegurar que estén disponibles antes de guardar
+                .collect(Collectors.toList());
 
-        ConcessionProduct combo4 = new ConcessionProduct();
-        combo4.setName("Combo Dulce");
-        combo4.setDescription("Canchita grande dulce + Frugos + Nuggets x6");
-        combo4.setPrice(BigDecimal.valueOf(47.40));
-        combo4.setImageUrl("https://i.imgur.com/E9ZykEX.png");
-        combo4.setCategory(ConcessionProduct.ProductCategory.COMBOS);
-        combo4.setCinemas(cinemaSet);
+        // 3. Guardar el lote de productos nuevos
+        if (!productsToSave.isEmpty()) {
+            concessionProductRepository.saveAll(productsToSave);
+        }
+    }
 
-        ConcessionProduct combo5 = new ConcessionProduct();
-        combo5.setName("Combo Pareja");
-        combo5.setDescription("2 Canchitas medianas + 2 Gaseosas grandes");
-        combo5.setPrice(BigDecimal.valueOf(69.90));
-        combo5.setImageUrl("https://i.imgur.com/dkPseQ3.png");
-        combo5.setCategory(ConcessionProduct.ProductCategory.COMBOS);
-        combo5.setCinemas(cinemaSet);
+    private ConcessionProduct buildProduct(String name, String description, BigDecimal price, String imageUrl, ConcessionProduct.ProductCategory category, Set<Cinema> cinemas) {
+        ConcessionProduct p = new ConcessionProduct();
+        p.setName(name);
+        p.setDescription(description);
+        p.setPrice(price);
+        p.setImageUrl(imageUrl);
+        p.setCategory(category);
+        p.setCinemas(cinemas);
+        p.setAvailable(true);
+        return p;
+    }
 
-        ConcessionProduct combo6 = new ConcessionProduct();
-        combo6.setName("Combo Burger Premium");
-        combo6.setDescription("Canchita gigante + 2 Gaseosas grandes + Hamburguesa");
-        combo6.setPrice(BigDecimal.valueOf(35.90));
-        combo6.setImageUrl("https://i.imgur.com/4f5OE64.png");
-        combo6.setCategory(ConcessionProduct.ProductCategory.COMBOS);
-        combo6.setCinemas(cinemaSet);
+    // --- MÉTODO OPTIMIZADO PARA PELÍCULAS (Tu versión anterior, ahora en su lugar) ---
+    private void loadMovies() {
+        // 1. Lista de películas únicas a cargar
+        List<Movie> moviesToLoad = List.of(
+                new Movie(null, "Concierto de Navidad de André Rieu 2025", "Esta temporada navideña, la magia comienza en la gran pantalla. Únete a André Rieu en su concierto de Navidad 2025.", "Concierto", "R", "2hrs 35min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002676?referenceScheme=HeadOffice&allowPlaceHolder=true", null, null, null, null, MovieStatus.CARTELERA),
+                new Movie(null, "Beso de tres", "Connor, un joven amable pero inseguro, lleva años enamorado de su amiga Olivia y queda atrapado en un trío inesperado.", "Drama", "+14", "1hrs 52min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002628?referenceScheme=HeadOffice&allowPlaceHolder=true", null, "https://youtu.be/bBDpvM6sPEY", null, null, MovieStatus.CARTELERA),
 
-        // CANCHITA
-        ConcessionProduct canchita1 = new ConcessionProduct();
-        canchita1.setName("Canchita Gigante Salada");
-        canchita1.setDescription("Porción gigante de canchita con sal");
-        canchita1.setPrice(BigDecimal.valueOf(34.90));
-        canchita1.setImageUrl("https://i.imgur.com/6X0TjP9.png");
-        canchita1.setCategory(ConcessionProduct.ProductCategory.CANCHITA);
-        canchita1.setCinemas(cinemaSet);
+                new Movie(null, "El lado oscuro de la justicia", "Un joven pobre es acusado de tráfico de drogas. Un exfiscal investiga el caso y descubre un plan de abogados corruptos.", "Acción", "+14", "2hrs 0min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002697?referenceScheme=HeadOffice&allowPlaceHolder=true", "https://cdnpe.cineplanet.com.pe/assets/1072558e-e442-4c8c-95c9-60bf1c13bfa8", "https://www.youtube.com/watch?v=ycXCAIUZLHw", null, null, MovieStatus.CARTELERA),
+                new Movie(null, "Fue Solo Un Accidente", "Lo que comenzó como un pequeño accidente pone en movimiento una serie de consecuencias cada vez mayores.", "Drama", "+14", "1hrs 45min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002698?referenceScheme=HeadOffice&allowPlaceHolder=true", "https://cdnpe.cineplanet.com.pe/assets/85825100-c329-49bf-bd93-0b9002406fda", "https://www.youtube.com/watch?v=BXJbgWNcDxE", null, null, MovieStatus.CARTELERA),
+                new Movie(null, "Five Nights at Freddy's 2", "Ha pasado un año desde la pesadilla sobrenatural en Freddy Fazbear's Pizza. La familia vuelve a enfrentar el terror.", "Terror", "+14", "1hrs 45min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002582?referenceScheme=HeadOffice&allowPlaceHolder=true", "https://cdnpe.cineplanet.com.pe/assets/80f68fae-db70-45cb-87bd-5392a78dded2", "https://www.youtube.com/watch?v=E8M-iJ0p-Xk", null, null, MovieStatus.CARTELERA),
+                new Movie(null, "Kiki Entregas a Domicilio", "Kiki es una joven bruja que al cumplir 13 años debe encontrar su lugar en el mundo con su servicio de entregas voladoras.", "Anime", "APT", "1hrs 52min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002503?referenceScheme=HeadOffice&allowPlaceHolder=true", null, "https://www.youtube.com/watch?v=lHhMseKJFWY", null, null, MovieStatus.CARTELERA),
+                new Movie(null, "Sirenas", "En La Casa de las Sirenas, el burdel más antiguo de Iquitos, el carnaval se torna en misterio al hallarse muerta a la menor.", "Thriller", "+14", "1hrs 45min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002689?referenceScheme=HeadOffice&allowPlaceHolder=true", "https://cdnpe.cineplanet.com.pe/assets/e56b2a1f-03d9-4bcf-98bf-10d54ee88b17", "https://youtu.be/etE2HYY7tRI", null, null, MovieStatus.CARTELERA),
+                new Movie(null, "Una Navidad Inesperada", "Una pareja lleva a su hija al hotel de su abuelo para revelarle su separación, pero la niña intentará reunir a la familia.", "Comedia", "+14", "1hrs 32min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002690?referenceScheme=HeadOffice&allowPlaceHolder=true", "https://cdnpe.cineplanet.com.pe/assets/7c4fbc84-f4bd-4697-9d8b-7362703054bc", "https://www.youtube.com/watch?v=mHDz_kgQOuI", null, null, MovieStatus.CARTELERA),
+                new Movie(null, "MONSTA X: CONNECT X IN CINEMAS", "MONSTA X incendió el KSPO DOME durante tres noches inolvidables. Una crónica de diez años juntos.", "Concierto", "+14", "1hrs 58min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002675?referenceScheme=HeadOffice&allowPlaceHolder=true", null, "https://www.youtube.com/watch?v=P11rZPHKxb4", null, null, MovieStatus.CARTELERA),
+                new Movie(null, "Zootopia 2", "Los detectives Judy Hopps y Nick Wilde se enfrentan a su misión más salvaje: un misterioso reptil llegó a la ciudad.", "Animación", "APT", "1hrs 48min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002477?referenceScheme=HeadOffice&allowPlaceHolder=true", "https://i.pinimg.com/1200x/d4/9c/cd/d49ccd324765da7c7b4a39f0105f99a7.jpg", "https://www.youtube.com/watch?v=4_KaABhCPPk", null, null, MovieStatus.CARTELERA),
 
-        ConcessionProduct canchita2 = new ConcessionProduct();
-        canchita2.setName("Canchita Grande Salada");
-        canchita2.setDescription("Porción grande de canchita con sal");
-        canchita2.setPrice(BigDecimal.valueOf(29.90));
-        canchita2.setImageUrl("https://i.imgur.com/yoalqQt.png");
-        canchita2.setCategory(ConcessionProduct.ProductCategory.CANCHITA);
-        canchita2.setCinemas(cinemaSet);
+                // PREVENTA
+                new Movie(null, "Crítica Abierta: Bugonia", "Función especial con conversatorio. Dos jóvenes secuestran a una CEO convencidos de que es una alienígena.", "Drama", "+14", "2hrs 0min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002719?referenceScheme=HeadOffice&allowPlaceHolder=true", null, "https://www.youtube.com/watch?v=jVp8DR0ObDU", null, null, MovieStatus.PREVENTA),
+                new Movie(null, "Amanecer Parte 1", "Edward y Bella se casan. Durante la luna de miel, Bella queda embarazada y su salud se deteriora rápidamente.", "Romance", "+14", "1hrs 57min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002653?referenceScheme=HeadOffice&allowPlaceHolder=true", null, null, null, null, MovieStatus.PREVENTA),
+                new Movie(null, "Amanecer Parte 2", "Bella se adapta a su nueva naturaleza vampira. La familia Cullen debe protegerse de la amenaza de los Volturi.", "Romance", "+14", "1hrs 58min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002654?referenceScheme=HeadOffice&allowPlaceHolder=true", null, "https://www.youtube.com/watch?v=zJL0l-7MuWw", null, null, MovieStatus.PREVENTA),
+                new Movie(null, "El Grinch", "En las afueras de Whoville, vive el Grinch y busca venganza para arruinar la Navidad de todos.", "Familiar", "APT", "1hrs 44min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002701?referenceScheme=HeadOffice&allowPlaceHolder=true", null, null, null, null, MovieStatus.PREVENTA),
+                new Movie(null, "Avatar Fuego y Cenizas", "La familia de Jake y Neytiri se enfrenta a una tribu Na'vi hostil, los Ash, mientras los conflictos en Pandora se intensifican.", "Acción", "+14", "3hrs 14min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002638?referenceScheme=HeadOffice&allowPlaceHolder=true", null, "https://www.youtube.com/watch?v=g71Ha1HCWt8", null, null, MovieStatus.PREVENTA),
 
-        ConcessionProduct canchita3 = new ConcessionProduct();
-        canchita3.setName("Canchita Grande Dulce");
-        canchita3.setDescription("Porción grande de canchita dulce");
-        canchita3.setPrice(BigDecimal.valueOf(31.90));
-        canchita3.setImageUrl("https://i.imgur.com/4BCV5nd.png");
-        canchita3.setCategory(ConcessionProduct.ProductCategory.CANCHITA);
-        canchita3.setCinemas(cinemaSet);
+                // PROXIMO
+                new Movie(null, "100 Metros", "Togashi, estrella del atletismo, conoce al estudiante Komiya. Pasarán los años y sus destinos se cruzarán como rivales.", "Anime", "+14", "1hrs 46min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002700?referenceScheme=HeadOffice&allowPlaceHolder=true", null, null, null, null, MovieStatus.PROXIMO),
+                new Movie(null, "Bugonia", "Dos jóvenes obsesionados con conspiraciones secuestran a una CEO convencidos de que es una alienígena.", "Drama", "+14", "2hrs 0min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002666?referenceScheme=HeadOffice&allowPlaceHolder=true", null, null, null, null, MovieStatus.PROXIMO),
+                new Movie(null, "El Descubridor de Leyendas", "El profesor Fang lidera una expedición al Templo del Glaciar en busca de artefactos que conectan sueños y realidad.", "Acción", "+14", "2hrs 0min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002718?referenceScheme=HeadOffice&allowPlaceHolder=true", null, "https://www.youtube.com/watch?v=cEFCr0B6udc", null, null, MovieStatus.PROXIMO),
+                new Movie(null, "El gran premio a toda velocidad", "Edda, una joven ratoncita, tiene la oportunidad de competir en el Gran Premio disfrazada como su ídolo.", "Animación", "APT", "2hrs 0min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002478?referenceScheme=HeadOffice&allowPlaceHolder=true", null, "https://www.youtube.com/watch?v=cEFCr0B6udc", null, null, MovieStatus.PROXIMO),
+                new Movie(null, "Fuimos Héroes", "En 1975, la selección peruana conquistó su segunda Copa América. Esta es la historia de esos héroes.", "Drama", "+14", "55min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002685?referenceScheme=HeadOffice&allowPlaceHolder=true", null, null, null, null, MovieStatus.PROXIMO),
+                new Movie(null, "Noche de Paz, Noche de Horror", "Un niño presencia el asesinato de sus padres. Años después, se disfraza de Papá Noel y busca venganza.", "Terror", "+14", "1hrs 36min", "https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002662?referenceScheme=HeadOffice&allowPlaceHolder=true", null, null, null, null, MovieStatus.PROXIMO)
+        );
 
-        ConcessionProduct canchita4 = new ConcessionProduct();
-        canchita4.setName("Canchita Mediana Salada");
-        canchita4.setDescription("Porción mediana de canchita con sal");
-        canchita4.setPrice(BigDecimal.valueOf(26.90));
-        canchita4.setImageUrl("https://i.imgur.com/uJlVCc9.png");
-        canchita4.setCategory(ConcessionProduct.ProductCategory.CANCHITA);
-        canchita4.setCinemas(cinemaSet);
+        // 2. Optimización: Se obtienen TODOS los títulos existentes una sola vez.
+        Set<String> existingTitles = movieRepository.findAll().stream()
+                .map(Movie::getTitle)
+                .map(String::toLowerCase) // Para comparación sin distinción entre mayúsculas y minúsculas
+                .collect(Collectors.toSet());
 
-        ConcessionProduct canchita5 = new ConcessionProduct();
-        canchita5.setName("Canchita Mediana Dulce");
-        canchita5.setDescription("Porción mediana de canchita dulce");
-        canchita5.setPrice(BigDecimal.valueOf(27.90));
-        canchita5.setImageUrl("https://i.imgur.com/UCS4p8y.png");
-        canchita5.setCategory(ConcessionProduct.ProductCategory.CANCHITA);
-        canchita5.setCinemas(cinemaSet);
+        // 3. Se filtra la lista para obtener solo las películas que no existen
+        List<Movie> moviesToSave = moviesToLoad.stream()
+                .filter(m -> !existingTitles.contains(m.getTitle().toLowerCase()))
+                .collect(Collectors.toList());
 
-        ConcessionProduct canchita6 = new ConcessionProduct();
-        canchita6.setName("Canchita Kids Salada");
-        canchita6.setDescription("Porción Kids de canchita con sal");
-        canchita6.setPrice(BigDecimal.valueOf(11.90));
-        canchita6.setImageUrl("https://i.imgur.com/JBRSxds.png");
-        canchita6.setCategory(ConcessionProduct.ProductCategory.CANCHITA);
-        canchita6.setCinemas(cinemaSet);
-
-        ConcessionProduct canchita7 = new ConcessionProduct();
-        canchita7.setName("Canchita Kids Dulce");
-        canchita7.setDescription("Canchita Kids dulce");
-        canchita7.setPrice(BigDecimal.valueOf(12.90));
-        canchita7.setImageUrl("https://i.imgur.com/Nu0Ow6U.png");
-        canchita7.setCategory(ConcessionProduct.ProductCategory.CANCHITA);
-        canchita7.setCinemas(cinemaSet);
-
-        ConcessionProduct canchita8 = new ConcessionProduct();
-        canchita8.setName("Canchita Mantequilla");
-        canchita8.setDescription("Canchita grande con mantequilla");
-        canchita8.setPrice(BigDecimal.valueOf(31.90));
-        canchita8.setImageUrl("https://i.imgur.com/oSnb1b2.png");
-        canchita8.setCategory(ConcessionProduct.ProductCategory.CANCHITA);
-        canchita8.setCinemas(cinemaSet);
-
-        // BEBIDAS
-        ConcessionProduct bebida1 = new ConcessionProduct();
-        bebida1.setName("Coca Cola Grande");
-        bebida1.setDescription("Coca Cola 500ml");
-        bebida1.setPrice(BigDecimal.valueOf(11.90));
-        bebida1.setImageUrl("https://i.imgur.com/H0od7eK.png");
-        bebida1.setCategory(ConcessionProduct.ProductCategory.BEBIDAS);
-        bebida1.setCinemas(cinemaSet);
-
-        ConcessionProduct bebida2 = new ConcessionProduct();
-        bebida2.setName("Inca Kola Grande");
-        bebida2.setDescription("Inca Kola 500ml");
-        bebida2.setPrice(BigDecimal.valueOf(11.90));
-        bebida2.setImageUrl("https://i.imgur.com/nUkZc3u.png");
-        bebida2.setCategory(ConcessionProduct.ProductCategory.BEBIDAS);
-        bebida2.setCinemas(cinemaSet);
-
-        ConcessionProduct bebida3 = new ConcessionProduct();
-        bebida3.setName("Sprite Grande");
-        bebida3.setDescription("Sprite 500ml");
-        bebida3.setPrice(BigDecimal.valueOf(11.90));
-        bebida3.setImageUrl("https://i.imgur.com/YrRj40A.png");
-        bebida3.setCategory(ConcessionProduct.ProductCategory.BEBIDAS);
-        bebida3.setCinemas(cinemaSet);
-
-        ConcessionProduct bebida4 = new ConcessionProduct();
-        bebida4.setName("Jugo de Naranja");
-        bebida4.setDescription("Jugo natural de naranja 400ml");
-        bebida4.setPrice(BigDecimal.valueOf(11.90));
-        bebida4.setImageUrl("https://i.imgur.com/1gzH5cZ.png");
-        bebida4.setCategory(ConcessionProduct.ProductCategory.BEBIDAS);
-        bebida4.setCinemas(cinemaSet);
-
-        ConcessionProduct bebida5 = new ConcessionProduct();
-        bebida5.setName("Frugos del valle");
-        bebida5.setDescription("Frugos 300ml");
-        bebida5.setPrice(BigDecimal.valueOf(6.90));
-        bebida5.setImageUrl("https://i.imgur.com/wPEQYeE.png");
-        bebida5.setCategory(ConcessionProduct.ProductCategory.BEBIDAS);
-        bebida5.setCinemas(cinemaSet);
-
-        ConcessionProduct bebida6 = new ConcessionProduct();
-        bebida6.setName("Agua con Gas");
-        bebida6.setDescription("Agua mineral con gas 500ml");
-        bebida6.setPrice(BigDecimal.valueOf(6.90));
-        bebida6.setImageUrl("https://i.imgur.com/2S1tlC6.png");
-        bebida6.setCategory(ConcessionProduct.ProductCategory.BEBIDAS);
-        bebida6.setCinemas(cinemaSet);
-
-        ConcessionProduct bebida7 = new ConcessionProduct();
-        bebida7.setName("Agua Sin Gas");
-        bebida7.setDescription("Agua mineral 500ml");
-        bebida7.setPrice(BigDecimal.valueOf(5.90));
-        bebida7.setImageUrl("https://i.imgur.com/kAjLTU3.png");
-        bebida7.setCategory(ConcessionProduct.ProductCategory.BEBIDAS);
-        bebida7.setCinemas(cinemaSet);
-
-        // SNACKS
-        ConcessionProduct snack1 = new ConcessionProduct();
-        snack1.setName("Hot Dog Frankfurter");
-        snack1.setDescription("Hot dog con salchicha alemana y salsas");
-        snack1.setPrice(BigDecimal.valueOf(13.90));
-        snack1.setImageUrl("https://i.imgur.com/vgYqN6n.png");
-        snack1.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack1.setCinemas(cinemaSet);
-
-        ConcessionProduct snack2 = new ConcessionProduct();
-        snack2.setName("Nachos con Queso");
-        snack2.setDescription("Nachos crujientes con salsa de queso");
-        snack2.setPrice(BigDecimal.valueOf(14.90));
-        snack2.setImageUrl("https://i.imgur.com/fmBuiPG.png");
-        snack2.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack2.setCinemas(cinemaSet);
-
-        ConcessionProduct snack3 = new ConcessionProduct();
-        snack3.setName("Papas Fritas");
-        snack3.setDescription("Papas fritas crujientes porción grande");
-        snack3.setPrice(BigDecimal.valueOf(7.90));
-        snack3.setImageUrl("https://i.imgur.com/X5f8YC9.png");
-        snack3.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack3.setCinemas(cinemaSet);
-
-        ConcessionProduct snack4 = new ConcessionProduct();
-        snack4.setName("Tequeños x4 un");
-        snack4.setDescription("4 tequeños de queso fritos");
-        snack4.setPrice(BigDecimal.valueOf(10.90));
-        snack4.setImageUrl("https://i.imgur.com/bDMNPBk.png");
-        snack4.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack4.setCinemas(cinemaSet);
-
-        ConcessionProduct snack5 = new ConcessionProduct();
-        snack5.setName("Nuggets x6");
-        snack5.setDescription("6 nuggets de pollo crujientes");
-        snack5.setPrice(BigDecimal.valueOf(13.90));
-        snack5.setImageUrl("https://i.imgur.com/MtnELKD.png");
-        snack5.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack5.setCinemas(cinemaSet);
-
-        ConcessionProduct snack6 = new ConcessionProduct();
-        snack6.setName("Salchipapas");
-        snack6.setDescription("Papas fritas con salchicha y salsas");
-        snack6.setPrice(BigDecimal.valueOf(14.90));
-        snack6.setImageUrl("https://i.imgur.com/aF0NUuv.png");
-        snack6.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack6.setCinemas(cinemaSet);
-
-        ConcessionProduct snack7 = new ConcessionProduct();
-        snack7.setName("Hamburguesa Clásica");
-        snack7.setDescription("Hamburguesa con carne, lechuga y tomate");
-        snack7.setPrice(BigDecimal.valueOf(16.90));
-        snack7.setImageUrl("https://i.imgur.com/8U3R1Oa.png");
-        snack7.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack7.setCinemas(cinemaSet);
-
-        ConcessionProduct snack8 = new ConcessionProduct();
-        snack8.setName("Pizza Personal");
-        snack8.setDescription("Pizza individual de pepperoni");
-        snack8.setPrice(BigDecimal.valueOf(18.90));
-        snack8.setImageUrl("https://i.imgur.com/oMEqVGb.png");
-        snack8.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack8.setCinemas(cinemaSet);
-
-        ConcessionProduct snack9 = new ConcessionProduct();
-        snack9.setName("Sandwich Club");
-        snack9.setDescription("Sandwich triple con pollo, tocino y verduras");
-        snack9.setPrice(BigDecimal.valueOf(16.90));
-        snack9.setImageUrl("https://i.imgur.com/jwVxk1i.png");
-        snack9.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack9.setCinemas(cinemaSet);
-
-        ConcessionProduct snack10 = new ConcessionProduct();
-        snack10.setName("Alitas BBQ x7");
-        snack10.setDescription("7 alitas de pollo con salsa BBQ");
-        snack10.setPrice(BigDecimal.valueOf(18.90));
-        snack10.setImageUrl("https://i.imgur.com/cXOORTE.png");
-        snack10.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack10.setCinemas(cinemaSet);
-
-        ConcessionProduct snack11 = new ConcessionProduct();
-        snack11.setName("Quesadilla");
-        snack11.setDescription("Quesadilla de queso con guacamole");
-        snack11.setPrice(BigDecimal.valueOf(15.90));
-        snack11.setImageUrl("https://i.imgur.com/oK4ZOoP.png");
-        snack11.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack11.setCinemas(cinemaSet);
-
-        ConcessionProduct snack12 = new ConcessionProduct();
-        snack12.setName("Wrap de Pollo");
-        snack12.setDescription("Wrap con pollo, lechuga y salsa ranch");
-        snack12.setPrice(BigDecimal.valueOf(19.90));
-        snack12.setImageUrl("https://i.imgur.com/VwpHY4O.png");
-        snack12.setCategory(ConcessionProduct.ProductCategory.SNACKS);
-        snack12.setCinemas(cinemaSet);
-
-        // Save all products
-        concessionProductRepository.saveAll(java.util.Arrays.asList(
-                combo1, combo2, combo3, combo4, combo5, combo6,
-                canchita1, canchita2, canchita3, canchita4, canchita5, canchita6, canchita7, canchita8,
-                bebida1, bebida2, bebida3, bebida4, bebida5, bebida6, bebida7,
-                snack1, snack2, snack3, snack4, snack5, snack6, snack7, snack8, snack9, snack10, snack11, snack12
-        ));
+        // 4. Se guarda el nuevo lote de películas de forma eficiente (batch insert)
+        if (!moviesToSave.isEmpty()) {
+            movieRepository.saveAll(moviesToSave);
+        }
     }
 }
