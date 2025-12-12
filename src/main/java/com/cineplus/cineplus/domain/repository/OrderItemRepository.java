@@ -22,6 +22,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     // Buscar items de orden de una función específica y con un estado de ticket
     List<OrderItem> findByShowtimeAndTicketStatus(Showtime showtime, TicketStatus ticketStatus);
 
-    // Buscar un item de orden por función, asiento de función y estado del ticket
-    Optional<OrderItem> findByShowtimeAndShowtimeSeatAndTicketStatus(Showtime showtime, ShowtimeSeat showtimeSeat, TicketStatus ticketStatus);
+    // Buscar un item de orden por función, asiento y estado del ticket
+    Optional<OrderItem> findByShowtimeAndSeatAndTicketStatus(Showtime showtime, Seat seat, TicketStatus ticketStatus);
 }

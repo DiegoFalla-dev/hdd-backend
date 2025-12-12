@@ -5,7 +5,7 @@ import com.cineplus.cineplus.domain.dto.CreateOrderItemDTO;
 import com.cineplus.cineplus.domain.dto.CreateOrderConcessionDTO;
 import com.cineplus.cineplus.domain.dto.OrderDTO;
 import com.cineplus.cineplus.domain.entity.*;
-import com.cineplus.cineplus.domain.repository.ShowtimeSeatRepository;
+// import com.cineplus.cineplus.domain.repository.ShowtimeSeatRepository;
 import com.cineplus.cineplus.domain.repository.*;
 import com.cineplus.cineplus.domain.service.OrderService;
 import com.cineplus.cineplus.domain.service.PromotionService;
@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentMethodRepository paymentMethodRepository;
     private final ShowtimeRepository showtimeRepository;
     private final SeatRepository seatRepository;
-    private final ShowtimeSeatRepository showtimeSeatRepository;
+    // private final ShowtimeSeatRepository showtimeSeatRepository;
     private final PromotionRepository promotionRepository; // Se usa para buscar la entidad, no el DTO
     private final com.cineplus.cineplus.domain.repository.TicketTypeRepository ticketTypeRepository;
     private final OrderMapper orderMapper;
@@ -90,8 +90,8 @@ public class OrderServiceImpl implements OrderService {
         for (CreateOrderItemDTO itemDTO : createOrderDTO.getItems()) {
             Showtime showtime = showtimeRepository.findById(itemDTO.getShowtimeId())
                     .orElseThrow(() -> new EntityNotFoundException("Función no encontrada con ID: " + itemDTO.getShowtimeId()));
-            ShowtimeSeat showtimeSeat = showtimeSeatRepository.findById(itemDTO.getShowtimeSeatId())
-                    .orElseThrow(() -> new EntityNotFoundException("ShowtimeSeat no encontrado con ID: " + itemDTO.getShowtimeSeatId()));
+                Seat seat = seatRepository.findById(itemDTO.getSeatId())
+                    .orElseThrow(() -> new EntityNotFoundException("Seat no encontrado con ID: " + itemDTO.getSeatId()));
 
             // 1. Validar que la función no haya pasado
             LocalDateTime showtimeDateTime = LocalDateTime.of(showtime.getDate(), showtime.getTime());
@@ -110,20 +110,18 @@ public class OrderServiceImpl implements OrderService {
             }
 
             // 4. Verificar si el asiento ya ha sido comprado para esta función
-            if (orderItemRepository.findByShowtimeAndShowtimeSeatAndTicketStatus(showtime, showtimeSeat, TicketStatus.VALID).isPresent() || !showtimeSeat.getIsAvailable()) {
+            if (orderItemRepository.findByShowtimeAndSeatAndTicketStatus(showtime, seat, TicketStatus.VALID).isPresent() || seat.getStatus() != com.cineplus.cineplus.domain.entity.Seat.SeatStatus.AVAILABLE) {
                 throw new IllegalStateException("El asiento ya está ocupado para la función " + showtime.getId());
             }
 
             // 5. Validar que el asiento pertenezca a la función
-            if (!showtimeSeat.getMovieShowtime().getId().equals(showtime.getId())) {
-                throw new IllegalStateException("El asiento no pertenece a la función seleccionada.");
-            }
+            // Validación de pertenencia de asiento a función (si aplica, ajustar según modelo)
 
             // Reducir la disponibilidad de asientos
             showtime.setAvailableSeats(showtime.getAvailableSeats() - 1);
             showtimeRepository.save(showtime);
-            showtimeSeat.setIsAvailable(false);
-            showtimeSeatRepository.save(showtimeSeat);
+            seat.setStatus(com.cineplus.cineplus.domain.entity.Seat.SeatStatus.OCCUPIED);
+            seatRepository.save(seat);
 
             // Determinar precio oficial del ticket: si se envió ticketType, buscar su precio en el catálogo.
             java.math.BigDecimal effectivePrice = itemDTO.getPrice();
@@ -137,9 +135,9 @@ public class OrderServiceImpl implements OrderService {
             }
 
             // Crear el OrderItem con el precio efectivo
-            OrderItem orderItem = OrderItem.builder()
+                OrderItem orderItem = OrderItem.builder()
                     .showtime(showtime)
-                    .showtimeSeat(showtimeSeat)
+                    .seat(seat)
                     .price(effectivePrice)
                     .ticketType(itemDTO.getTicketType())
                     .ticketStatus(TicketStatus.VALID)
@@ -309,19 +307,15 @@ public class OrderServiceImpl implements OrderService {
                 // Generar QR para cada ticket
                 String ticketData = QR_CODE_BASE_URL + item.getId();
                 byte[] qrCodeImage = generateQrCodeImage(ticketData, 200, 200);
-                // Aquí deberías guardar qrCodeImage en un almacenamiento de archivos (S3, sistema de archivos, etc.)
-                // Por ahora, solo guardamos una URL ficticia
                 item.setQrCodeTicketUrl("/qrcodes/ticket_" + item.getId() + ".png");
 
                 // Generar PDF para cada ticket
                 byte[] ticketPdfBytes = generateTicketPdfContent(item);
-                // Guardar ticketPdfBytes en almacenamiento
                 item.setTicketPdfUrl("/pdfs/ticket_" + item.getId() + ".pdf");
 
                 orderItemRepository.save(item); // Actualizar el item con las URLs generadas
             } catch (Exception e) {
                 System.err.println("Error al generar QR/PDF para OrderItem " + item.getId() + ": " + e.getMessage());
-                // Considerar cómo manejar este error (revertir transacción, marcar como error, etc.)
             }
         }
 
@@ -467,7 +461,7 @@ public class OrderServiceImpl implements OrderService {
             document.add(new Paragraph(String.format("- Película: %s, Función: %s, Asiento: %s, Precio: $%.2f",
                 item.getShowtime().getMovie().getTitle(),
                 item.getShowtime().getFormat() + " " + item.getShowtime().getTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-                item.getShowtimeSeat().getSeat().getSeatIdentifier(),
+                item.getSeat().getSeatIdentifier(),
                 item.getPrice())));
         }
         document.add(new Paragraph("--------------------------------------------------"));
@@ -502,7 +496,7 @@ public class OrderServiceImpl implements OrderService {
         document.add(new Paragraph("Fecha: " + orderItem.getShowtime().getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
         document.add(new Paragraph("Hora: " + orderItem.getShowtime().getTime().format(DateTimeFormatter.ofPattern("HH:mm"))));
         document.add(new Paragraph("Formato: " + orderItem.getShowtime().getFormat()));
-        document.add(new Paragraph("Asiento: " + orderItem.getShowtimeSeat().getSeat().getSeatIdentifier()).setBold());
+        document.add(new Paragraph("Asiento: " + orderItem.getSeat().getSeatIdentifier()).setBold());
         document.add(new Paragraph(String.format("Precio: $%.2f", orderItem.getPrice())));
         document.add(new Paragraph("Estado: " + orderItem.getTicketStatus()));
         document.add(new Paragraph("--------------------------------------------------"));

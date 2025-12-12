@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+
 @RequiredArgsConstructor
 public class ShowtimeServiceImpl implements ShowtimeService {
 
@@ -181,6 +182,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
                 }
 
             // Devolver los que fallaron
+            // Notificar solo los asientos que sí se reservaron temporalmente
             return new ArrayList<>(failedToReserve);
         }
 
@@ -188,6 +190,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         showtime.setAvailableSeats(showtime.getAvailableSeats() - seatIdentifiers.size());
         showtimeRepository.save(showtime);
 
+        // Notificar todos los asientos reservados temporalmente
         return new ArrayList<>(); // Todos se reservaron correctamente
     }
 
@@ -199,6 +202,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         // Actualizar el estado de los asientos de TEMPORARILY_RESERVED a AVAILABLE
         seatRepository.updateSeatStatusIfExpected(showtimeId, seatIdentifiers, SeatStatus.AVAILABLE, SeatStatus.TEMPORARILY_RESERVED);
+        // Notificar asientos liberados
 
         // Actualizar el contador de asientos disponibles en el showtime
         showtime.setAvailableSeats(showtime.getAvailableSeats() + seatIdentifiers.size());
@@ -213,6 +217,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         // Actualizar el estado de los asientos de TEMPORARILY_RESERVED a OCCUPIED
         int updatedCount = seatRepository.updateSeatStatusIfExpected(showtimeId, seatIdentifiers, SeatStatus.OCCUPIED, SeatStatus.TEMPORARILY_RESERVED);
+        // Notificar asientos confirmados como ocupados
 
         if (updatedCount != seatIdentifiers.size()) {
             // Esto es un error grave, significa que algunos asientos reservados temporalmente ya no lo estaban.

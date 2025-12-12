@@ -1,7 +1,7 @@
 package com.cineplus.cineplus.domain.dto;
 
 import com.cineplus.cineplus.domain.entity.TicketStatus;
-import com.cineplus.cineplus.domain.dto.ShowtimeSeatDto;
+import com.cineplus.cineplus.domain.dto.SeatDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +17,7 @@ public class OrderItemDTO {
     private Long id;
     private Long orderId; // Solo el ID de la orden para evitar recursión infinita
     private ShowtimeDto showtime;
-    private ShowtimeSeatDto showtimeSeat;
+    private SeatDto seat;
     private BigDecimal price;
     private String ticketType; // Tipo de entrada: ADULTO, NIÑO, etc.
     private TicketStatus ticketStatus;
