@@ -18,8 +18,8 @@ public class CreateOrderItemDTO {
     @NotNull(message = "El ID de la función no puede ser nulo")
     private Long showtimeId;
 
-    @NotNull(message = "El ID del asiento no puede ser nulo")
-    private Long seatId;
+    @NotNull(message = "El ID del asiento en showtime no puede ser nulo")
+    private Long showtimeSeatId;
 
     @NotNull(message = "El precio del item no puede ser nulo")
     @Positive(message = "El precio del item debe ser un valor positivo")

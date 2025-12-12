@@ -177,6 +177,47 @@ public class UserController {
         }
     }
 
+
+    /**
+     * Actualiza la información de facturación (RUC y Razón Social) del usuario
+     * @param id ID del usuario
+     * @param billingInfo JSON con ruc y razonSocial
+     * @return Respuesta con el usuario actualizado o error
+     */
+    @PatchMapping("/{id}/billing-info")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> updateBillingInfo(@PathVariable Long id, @RequestBody java.util.Map<String, String> billingInfo) {
+        try {
+            String ruc = billingInfo.get("ruc");
+            String razonSocial = billingInfo.get("razonSocial");
+            if (ruc == null || ruc.isBlank() || razonSocial == null || razonSocial.isBlank()) {
+                return ResponseEntity.badRequest().body(java.util.Map.of(
+                        "success", false,
+                        "message", "RUC y Razón Social son obligatorios"
+                ));
+            }
+            return userService.findById(id)
+                    .map(user -> {
+                        user.setRuc(ruc);
+                        user.setRazonSocial(razonSocial);
+                        userService.updateUser(id, new UserDto(user));
+                        return ResponseEntity.ok(java.util.Map.of(
+                                "success", true,
+                                "message", "Información de facturación actualizada",
+                                "ruc", ruc,
+                                "razonSocial", razonSocial
+                        ));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            log.error("Error actualizando info de facturación para usuario {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of(
+                    "success", false,
+                    "message", "Error al actualizar información de facturación"
+            ));
+        }
+    }
+
     /**
      * Valida la cuenta de un usuario (marca isValid como true)
      * @param id ID del usuario a validar

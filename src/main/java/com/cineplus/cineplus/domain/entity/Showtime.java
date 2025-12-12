@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Showtime {
+    @Column(length = 32)
+    private String language; 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShowtimeDto {
+        private String language; // Idioma de la función (Español, Inglés, Subtitulado, etc.)
     private Long id;
     private Long movieId;
     private String movieTitle;

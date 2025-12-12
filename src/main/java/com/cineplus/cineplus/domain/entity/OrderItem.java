@@ -28,9 +28,11 @@ public class OrderItem {
     @JoinColumn(name = "showtime_id", nullable = false)
     private Showtime showtime; // A qué función corresponde esta entrada
 
+
+    // Nueva relación con ShowtimeSeat
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seat_id", nullable = false)
-    private Seat seat; // Qué asiento específico se compró
+    @JoinColumn(name = "showtime_seat_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_item_showtime_seat"))
+    private ShowtimeSeat showtimeSeat; // Qué asiento específico se compró en el showtime
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price; // Precio individual de la entrada
